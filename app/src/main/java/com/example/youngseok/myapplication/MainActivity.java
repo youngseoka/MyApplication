@@ -16,7 +16,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intent_go_initial = new Intent(this,InitialActivity.class);
         intent_go_initial.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivityForResult(intent_go_initial,1024);
-        // 시작과 동시에 initialActivity로 엑티비티 전환하기 flag로 1024를 줘서 initial에서도 1024를 찾아서 여기로 다시 돌아온다.
+        // 시작과 동시에 initialActivity로 엑티비티 전환하기 flag로 1024설정.
 
     }
 

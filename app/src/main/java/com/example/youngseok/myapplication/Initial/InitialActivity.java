@@ -2,6 +2,7 @@ package com.example.youngseok.myapplication.Initial;
 
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
@@ -14,11 +15,14 @@ public class InitialActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initial);
+
+        Intent intent_loading = new Intent(this,loadingActivity.class);
+        startActivity(intent_loading);
     }
 
     @Override
     public void onBackPressed(){
-
+    //취소버튼을 눌러도 메인액티비티로 가는게 아니라 아무 동작 안하게 설정
     }
 
 
