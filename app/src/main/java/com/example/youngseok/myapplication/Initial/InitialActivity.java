@@ -5,10 +5,14 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
 
 import com.example.youngseok.myapplication.R;
 
 public class InitialActivity extends Activity {
+
+    private Button signup_btn;  //회원가입 버튼
 
 
     @Override
@@ -18,7 +22,28 @@ public class InitialActivity extends Activity {
 
         Intent intent_loading = new Intent(this,loadingActivity.class);
         startActivity(intent_loading);
+        //로딩화면으로 이동
+
+        signup_btn = findViewById(R.id.signup_btn);
+        signup_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v_signup_btn) {
+                Intent go_signup = new Intent(getApplicationContext(),signupActivity.class);
+                go_signup.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivityForResult(go_signup,1000);
+                //회원가입 버튼 누를시 회원가입 페이지로 이동
+            }
+        });
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode,resultCode,data);
+
+    }
+
+
+
 
     @Override
     public void onBackPressed(){

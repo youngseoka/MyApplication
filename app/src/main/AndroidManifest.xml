@@ -18,6 +18,8 @@
         </activity>
 
         <activity android:name=".Initial.InitialActivity"></activity>
+        <activity android:name=".Initial.loadingActivity"></activity>
+        <activity android:name=".Initial.signupActivity"></activity>
     </application>
 
 </manifest>
