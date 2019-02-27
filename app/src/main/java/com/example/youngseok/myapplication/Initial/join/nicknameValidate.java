@@ -7,19 +7,19 @@ import com.android.volley.toolbox.StringRequest;
 import java.util.HashMap;
 import java.util.Map;
 
-public class idValidate extends StringRequest {
+public class nicknameValidate extends StringRequest {
 
-    final static private String URL = "http://192.168.0.208/Validate/idValidate.php";
+    final static private String URL = "http://192.168.0.208/Validate/nicknameValidate.php";
     private Map<String,String> parameters;
 
-    public idValidate(String id, Response.Listener<String> listener){
+    public nicknameValidate(String nickname, Response.Listener<String> listener){
         super(Method.POST,URL,listener,null);
         parameters=new HashMap<>();
-        parameters.put("id",id);
+        parameters.put("nickname",nickname);
     }
 
     @Override
-    protected Map<String,String> getParams() throws AuthFailureError{
+    protected Map<String,String> getParams() throws AuthFailureError {
         return parameters;
     }
 }

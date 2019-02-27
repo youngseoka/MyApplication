@@ -28,7 +28,7 @@
         android:orientation="vertical">
 
         <EditText
-            android:id="@+id/editText"
+            android:id="@+id/insert_id"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
@@ -44,7 +44,7 @@
             android:inputType="textPersonName" />
 
         <CheckBox
-            android:id="@+id/checkBox"
+            android:id="@+id/Remember_id"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="아이디 기억하기" />
