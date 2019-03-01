@@ -26,4 +26,9 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation 'com.android.volley:volley:1.1.0'    //db와 안드로이드 연결할때 http 라이브러리
+
+    implementation group: 'com.kakao.sdk', name: 'usermgmt', version: '1.15.1' //카카오 로그인 sdk 사용하기위
+
+    implementation 'com.facebook.android:facebook-login:[4,5)'
+    implementation 'com.android.support:design:28.0.0'  //페이스북 로그인
 }

@@ -2,8 +2,10 @@ package com.example.youngseok.myapplication.Initial;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.net.nsd.NsdManager;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -25,7 +27,7 @@ import org.json.JSONObject;
 
 import static com.example.youngseok.myapplication.Initial.InitialActivity.instance_save_id;
 
-public class signupActivity extends Activity {
+public class signupActivity extends AppCompatActivity {
 
     private LinearLayout layout_1, layout_2, layout_3,layout_4,layout_5,layout_6;
     private Button agree_btn,disagree_btn;
@@ -433,6 +435,11 @@ public class signupActivity extends Activity {
             }
         });
 
+
+
+        Intent intent = getIntent();
+        name.setText(intent.getStringExtra("name"));
+        email.setText(intent.getStringExtra("email"));
 
 
 

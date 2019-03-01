@@ -2,18 +2,37 @@ package com.example.youngseok.myapplication.Initial;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.toolbox.Volley;
+import com.example.youngseok.myapplication.Initial.facebook.FacebookLogin;
+import com.example.youngseok.myapplication.Initial.kakao.GetHash;
+import com.example.youngseok.myapplication.Initial.kakao.SessionCallback;
+import com.example.youngseok.myapplication.MainActivity;
 import com.example.youngseok.myapplication.R;
+import com.kakao.auth.Session;
+import com.kakao.usermgmt.LoginButton;
 
-public class InitialActivity extends Activity {
+import org.json.JSONObject;
+
+public class InitialActivity extends AppCompatActivity {
 
     private Button signup_btn;  //회원가입 버튼
 
@@ -27,22 +46,40 @@ public class InitialActivity extends Activity {
     private String id;
 
 
+    private SessionCallback callback;
+    Button login_kakao;
+
+    public InitialActivity initialActivity;
+
+    private FacebookLogin facebookLogin;
+    private Button but;
+
+    private EditText insert_password;
+
+    private Button login;
+
+
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initial);
 
-        Intent intent_loading = new Intent(this,loadingActivity.class);
+        Intent intent_loading = new Intent(InitialActivity.this,loadingActivity.class);
         startActivity(intent_loading);
         //로딩화면으로 이동
+        Log.i("여기 실행되냐",  "확인하러왔다");
+
+
 
         signup_btn = findViewById(R.id.signup_btn);
         signup_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v_signup_btn) {
-                Intent go_signup = new Intent(getApplicationContext(),signupActivity.class);
-                go_signup.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivityForResult(go_signup,1000);
+                Intent go_signup = new Intent(InitialActivity.this,signupActivity.class);
+                startActivity(go_signup);
                 //회원가입 버튼 누를시 회원가입 페이지로 이동
             }
         });
@@ -51,6 +88,10 @@ public class InitialActivity extends Activity {
         remember_id = findViewById(R.id.Remember_id);
         appData = getSharedPreferences("appData",MODE_PRIVATE);
 
+        insert_password = findViewById(R.id.insert_password);
+
+
+
         loadData();
         if(saveLoginData){
             insert_id.setText(id);
@@ -58,13 +99,149 @@ public class InitialActivity extends Activity {
         }
 
 
+
+        GetHash getHash = new GetHash(this);
+        callback = new SessionCallback(initialActivity);
+        Session.getCurrentSession().addCallback(callback);
+
+
+        login_kakao = findViewById(R.id.kakao_btn);
+
+
+        login_kakao.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LoginButton login_kakao_real=(LoginButton)findViewById(R.id.kakao_btn_real);
+                login_kakao_real.performClick();
+            }
+        });
+
+
+
+        facebookLogin = new FacebookLogin(initialActivity);
+
+
+
+        Button but = findViewById(R.id.button4);
+        but.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                com.facebook.login.widget.LoginButton login_button = (com.facebook.login.widget.LoginButton)findViewById(R.id.login_button);
+                facebookLogin.setLoginButton(login_button);
+                login_button.performClick();
+            }
+        });
+
+
+
+        login = findViewById(R.id.login);
+
+        login.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String id = insert_id.getText().toString();
+                String password = insert_password.getText().toString();
+
+
+                Response.Listener<String> responseLisner = new Response.Listener<String>(){
+
+
+
+                    @Override
+
+                    public void onResponse(String response) {
+
+                        try{
+
+                            JSONObject jsonResponse = new JSONObject(response);
+
+                            boolean success = jsonResponse.getBoolean("success");
+
+
+
+                            if(success){
+
+
+
+                                Intent intent = new Intent(InitialActivity.this, MainActivity.class);
+
+                                startActivity(intent);
+
+                                finish();
+
+                            }else {
+
+                                AlertDialog.Builder builder = new AlertDialog.Builder(InitialActivity.this);
+
+                                AlertDialog dialog = builder.setMessage("계정을 다시 확인하세요")
+
+                                        .setNegativeButton("다시시도", null)
+
+                                        .create();
+
+                                dialog.show();
+
+
+
+                            }
+
+
+
+                        }catch (Exception e){
+
+                            e.printStackTrace();
+
+                        }
+
+                    }
+
+                };
+
+
+
+                LoginRequest loginRequest = new LoginRequest(id, password, responseLisner);
+
+                RequestQueue queue = Volley.newRequestQueue(InitialActivity.this);
+
+                queue.add(loginRequest);
+
+
+
+            }
+
+        });
+
+
+
+
+
+
     }
+
+
+
+
+
+
+
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data){
-        super.onActivityResult(requestCode,resultCode,data);
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if(Session.getCurrentSession().handleActivityResult(requestCode, resultCode, data)) {
+            return;
+        } else if(facebookLogin.getCallbackManager().onActivityResult(requestCode, resultCode, data)) {
+            return;
+        }
 
     }
+
+
+
+
+
+
+
+
 
 
 
@@ -88,6 +265,8 @@ public class InitialActivity extends Activity {
 
 
 
+
+
     @Override
     protected void onStart(){
         super.onStart();
@@ -96,6 +275,7 @@ public class InitialActivity extends Activity {
     @Override
     protected void onDestroy(){
         super.onDestroy();
+        Session.getCurrentSession().removeCallback(callback);
         android.util.Log.i("test","onDestroy_initial");
     }
     @Override

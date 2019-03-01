@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class idValidate extends StringRequest {
 
-    final static private String URL = "http://192.168.0.208/Validate/idValidate.php";
+    final static private String URL = "http://192.168.43.34/Validate/idValidate.php";
     private Map<String,String> parameters;
 
     public idValidate(String id, Response.Listener<String> listener){
