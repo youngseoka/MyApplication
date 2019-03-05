@@ -73,7 +73,6 @@ public class InitialActivity extends AppCompatActivity {
         Log.i("여기 실행되냐",  "확인하러왔다");
 
 
-
         signup_btn = findViewById(R.id.signup_btn);
         signup_btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -101,7 +100,7 @@ public class InitialActivity extends AppCompatActivity {
 
 
         GetHash getHash = new GetHash(this);
-        callback = new SessionCallback(initialActivity);
+        callback = new SessionCallback(InitialActivity.this);
         Session.getCurrentSession().addCallback(callback);
 
 
@@ -118,7 +117,7 @@ public class InitialActivity extends AppCompatActivity {
 
 
 
-        facebookLogin = new FacebookLogin(initialActivity);
+        facebookLogin = new FacebookLogin(InitialActivity.this);
 
 
 
