@@ -16,7 +16,7 @@
         android:background="@android:color/background_light"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
-        app:title="타임라인" />
+        app:title="내 모임" />
 
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"

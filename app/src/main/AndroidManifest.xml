@@ -26,6 +26,7 @@
         <activity android:name=".Initial.signupActivity"></activity>
         <activity android:name=".Initial.find_idActivity"></activity>
         <activity android:name=".Initial.find_pwActivity"></activity>
+        <activity android:name=".MygroupActivity"></activity>
 
         <meta-data
             android:name="com.kakao.sdk.AppKey"
