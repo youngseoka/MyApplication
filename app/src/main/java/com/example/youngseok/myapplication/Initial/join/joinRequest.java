@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class joinRequest extends StringRequest {
-    final static private String URL = "http://192.168.0.208/Login_Join/UserJoin.php";
+    final static private String URL = "http://192.168.43.34/Login_Join/UserJoin.php";
     private Map<String,String> parameters;
 
     public joinRequest(String userNAME, String id, String password, String nickname, String email, String phone, Response.Listener<String> listener)

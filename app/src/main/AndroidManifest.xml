@@ -24,6 +24,8 @@
         <activity android:name=".MainActivity"></activity>
         <activity android:name=".Initial.loadingActivity"></activity>
         <activity android:name=".Initial.signupActivity"></activity>
+        <activity android:name=".Initial.find_idActivity"></activity>
+        <activity android:name=".Initial.find_pwActivity"></activity>
 
         <meta-data
             android:name="com.kakao.sdk.AppKey"

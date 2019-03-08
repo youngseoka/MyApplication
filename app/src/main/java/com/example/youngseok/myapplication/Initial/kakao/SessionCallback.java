@@ -42,17 +42,13 @@ public class SessionCallback implements ISessionCallback {
 
             @Override
             public void onSuccess(MeV2Response result) {
-                Log.i("ㅅㅅㅅ",  "1확인하러왔다");
                 Intent intent = new Intent(context, signupActivity.class);
-                Log.i("ㅅㅅㅅ",  "2확인하러왔다");
                 try {
-                    Log.i("ㅅㅅㅅ",  result.getNickname()+"3확인하러왔다");
                     intent.putExtra("name", result.getNickname());
                 } catch (Exception e) {
                     intent.putExtra("name", "nothing");
                 }
                 try {
-                    Log.i("ㅅㅅㅅ",  result.getKakaoAccount().getEmail()+"확4인하러왔다");
                     intent.putExtra("email", result.getKakaoAccount().getEmail());
                 } catch (Exception e) {
                     intent.putExtra("name", "nothing");

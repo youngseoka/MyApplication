@@ -49,7 +49,6 @@ public class InitialActivity extends AppCompatActivity {
     private SessionCallback callback;
     Button login_kakao;
 
-    public InitialActivity initialActivity;
 
     private FacebookLogin facebookLogin;
     private Button but;
@@ -172,9 +171,9 @@ public class InitialActivity extends AppCompatActivity {
 
                                 AlertDialog.Builder builder = new AlertDialog.Builder(InitialActivity.this);
 
-                                AlertDialog dialog = builder.setMessage("계정을 다시 확인하세요")
+                                AlertDialog dialog = builder.setMessage("아이디와 비밀번호를 다시 확인해주세요!")
 
-                                        .setNegativeButton("다시시도", null)
+                                        .setNegativeButton("확인", null)
 
                                         .create();
 
@@ -208,6 +207,27 @@ public class InitialActivity extends AppCompatActivity {
 
             }
 
+        });
+
+
+        Button find_id = findViewById(R.id.find_id);
+        Button find_pw = findViewById(R.id.find_pw);
+
+        find_id.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent go_find_id = new Intent(InitialActivity.this,find_idActivity.class);
+                startActivity(go_find_id);
+
+            }
+        });
+
+        find_pw.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent go_find_pw = new Intent(InitialActivity.this,find_pwActivity.class);
+                startActivity(go_find_pw);
+            }
         });
 
 
