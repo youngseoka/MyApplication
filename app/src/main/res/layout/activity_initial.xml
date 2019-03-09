@@ -93,7 +93,7 @@
             android:id="@+id/kakao_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="카카오톡 아이디로 가입하기" />
+            android:text="카카오톡으로 가입하기" />
 
         <com.kakao.usermgmt.LoginButton
             android:id="@+id/kakao_btn_real"
@@ -107,7 +107,7 @@
             android:id="@+id/button4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="페이스북 아이디로 가입하기" />
+            android:text="페이스북으로 가입하기" />
 
         <com.facebook.login.widget.LoginButton
             android:id="@+id/login_button"

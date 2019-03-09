@@ -96,7 +96,7 @@ public class find_pwActivity extends AppCompatActivity {
 
                                 AlertDialog.Builder builder = new AlertDialog.Builder(find_pwActivity.this);
 
-                                AlertDialog dialog = builder.setMessage("계정을 다시 확인하세요")
+                                AlertDialog dialog = builder.setMessage("일치하는 정보가 없습니다!")
 
                                         .setNegativeButton("다시시도", null)
 

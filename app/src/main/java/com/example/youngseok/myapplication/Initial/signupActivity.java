@@ -3,12 +3,14 @@ package com.example.youngseok.myapplication.Initial;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.net.nsd.NsdManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -33,6 +35,8 @@ public class signupActivity extends AppCompatActivity {
     private Button agree_btn,disagree_btn;
     //레이아웃들
 
+    private CheckBox checkbox;
+
 
     private Boolean validate_id = false;   //아이디 중복확인시 boolean으로 중복확인
     private Boolean validate_nick=false;    //닉네임 중복확인
@@ -47,6 +51,7 @@ public class signupActivity extends AppCompatActivity {
     protected void onCreate(Bundle saveInstanceState){
         super.onCreate(saveInstanceState);
         setContentView(R.layout.activity_signup);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         layout_1=findViewById(R.id.layout_1);
         layout_2=findViewById(R.id.layout_2);
@@ -55,16 +60,24 @@ public class signupActivity extends AppCompatActivity {
         layout_5=findViewById(R.id.layout_5);
         layout_6=findViewById(R.id.layout_6);
 
+        checkbox=findViewById(R.id.checkBox3);
+
+
+
         agree_btn=findViewById(R.id.agree_btn);
         //동의 버튼 누르면 위에 약관들 다 사라지고 회원가입 폼 나타남
         agree_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                layout_1.setVisibility(View.GONE);
-                layout_2.setVisibility(View.GONE);
-                layout_3.setVisibility(View.GONE);
-                layout_4.setVisibility(View.GONE);
-                layout_6.setVisibility(View.VISIBLE);
+
+                if(checkbox.isChecked()==true){
+                    layout_1.setVisibility(View.GONE);
+                    layout_2.setVisibility(View.GONE);
+                    layout_3.setVisibility(View.GONE);
+                    layout_4.setVisibility(View.GONE);
+                    layout_6.setVisibility(View.VISIBLE);
+                }
+
             }
         });
 
