@@ -58,6 +58,8 @@ public class InitialActivity extends AppCompatActivity {
 
     private Button login;
 
+    public static String save_my_id;
+
 
 
 
@@ -164,6 +166,7 @@ public class InitialActivity extends AppCompatActivity {
 
 
                                 Intent intent = new Intent(InitialActivity.this, MainActivity.class);
+                                save_my_id = insert_id.getText().toString();
 
                                 startActivity(intent);
 

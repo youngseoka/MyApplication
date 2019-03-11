@@ -37,4 +37,9 @@ dependencies {
     implementation files('/Users/youngseok/Desktop/teamnova_app/additionnal.jar')
     implementation files('/Users/youngseok/Desktop/teamnova_app/mail.jar')
     //이메일 보내기
+
+    implementation 'com.android.support:recyclerview-v7:28.0.0-alpha1'
+    //리사이클러뷰
+
+    implementation 'com.google.code.gson:gson:2.8.2'
 }

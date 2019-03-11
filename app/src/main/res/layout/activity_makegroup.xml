@@ -16,15 +16,44 @@
         android:background="@android:color/background_light"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
-        app:title="타임라인" />
+        app:title="모임 만들기" />
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/main_recycler"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="7">
+        android:layout_weight="7"
+        android:orientation="vertical">
 
-    </android.support.v7.widget.RecyclerView>
+        <EditText
+            android:id="@+id/insert_recycle_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="이름입력"
+            android:inputType="textPersonName" />
+
+        <EditText
+            android:id="@+id/insert_recycle_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="내용입력"
+            android:inputType="textPersonName" />
+
+        <EditText
+            android:id="@+id/insert_recycle_sumnail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="섬네일입력"
+            android:inputType="textPersonName" />
+
+        <Button
+            android:id="@+id/recycler_confirm_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="confirmsd" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

@@ -8,6 +8,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageButton;
 
+import com.example.youngseok.myapplication.make_group.MakeGroupActivity;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -56,6 +58,15 @@ public class MygroupActivity extends AppCompatActivity {
                 startActivity(go_mygroup);
                 overridePendingTransition(0,0);
                 finish();
+            }
+        });
+
+        makegroup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent go_makegroup = new Intent(MygroupActivity.this,MakeGroupActivity.class);
+                startActivity(go_makegroup);
+                overridePendingTransition(0,0);
             }
         });
 
