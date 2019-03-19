@@ -1,6 +1,7 @@
 package com.example.youngseok.myapplication;
 
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -15,15 +16,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.toolbox.Volley;
 import com.example.youngseok.myapplication.make_group.CustomAdapter;
 import com.example.youngseok.myapplication.make_group.MakeGroupActivity;
 import com.example.youngseok.myapplication.make_group.basicGroup;
-import com.example.youngseok.myapplication.make_group.loadRequest;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
+import com.gun0912.tedpermission.PermissionListener;
+import com.gun0912.tedpermission.TedPermission;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,6 +36,7 @@ import java.sql.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import static com.example.youngseok.myapplication.Initial.InitialActivity.save_my_id;
 
@@ -106,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
         mArrayList = new ArrayList<>();
 
 
-        mAdapter = new CustomAdapter(mArrayList);
+        mAdapter = new CustomAdapter(this,mArrayList);
         mRecyclerView.setAdapter(mAdapter);
 
 
@@ -126,14 +124,35 @@ public class MainActivity extends AppCompatActivity {
                 Intent go_make = new Intent(MainActivity.this,MakeGroupActivity.class);
                 startActivity(go_make);
                 overridePendingTransition(0,0);
+                finish();
 
 
 
             }
         });
+        TedPermission.with(this)
+                .setPermissionListener(permissionListener)
+                .setDeniedMessage("권한이 거부되었습니다. 사용을 원하시면 설정에서 해당 권한을 직접 허용해주세요.")
+                .setPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .check();
+
+
+
+
 
 
     }
+    PermissionListener permissionListener = new PermissionListener() {
+        @Override
+        public void onPermissionGranted() {
+
+        }
+
+        @Override
+        public void onPermissionDenied(List<String> deniedPermissions) {
+        }
+    };
+
 
 
     private class GetData extends AsyncTask<String, Void, String>{
@@ -233,6 +252,7 @@ public class MainActivity extends AppCompatActivity {
         String TAG_name = "name";
         String TAG_content = "content";
         String TAG_sumnail ="sumnail";
+        String TAG_profile="profile";
 
 
         try {
@@ -246,12 +266,14 @@ public class MainActivity extends AppCompatActivity {
                 String name = item.getString(TAG_name);
                 String content = item.getString(TAG_content);
                 String sumnail = item.getString(TAG_sumnail);
+                String profile = item.getString(TAG_profile);
 
                 basicGroup basicgroup = new basicGroup();
 
                 basicgroup.setGroup_name(name);
                 basicgroup.setGroup_content(content);
                 basicgroup.setGroup_sumnail(sumnail);
+                basicgroup.setGroup_picture(profile);
 
                 mArrayList.add(basicgroup);
                 mAdapter.notifyDataSetChanged();
@@ -281,7 +303,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause(){
         super.onPause();
-
     }
     @Override
     protected void onRestart(){
@@ -289,13 +310,12 @@ public class MainActivity extends AppCompatActivity {
     }
     @Override
     protected void onResume(){
+        mAdapter.notifyDataSetChanged();
         super.onResume();
-
     }
     @Override
     protected void onStop(){
         super.onStop();
-
     }
 
 }

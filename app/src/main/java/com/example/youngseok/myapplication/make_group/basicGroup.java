@@ -5,6 +5,7 @@ public class basicGroup {
     private String group_name;
     private String group_content;
     private String group_sumnail;
+    private String group_picture;
 
 
     public String getGroup_name() {
@@ -13,6 +14,13 @@ public class basicGroup {
 
     public void setGroup_name(String group_name) {
         this.group_name = group_name;
+    }
+
+    public String getGroup_picture(){
+        return group_picture;
+    }
+    public void setGroup_picture(String group_picture){
+        this.group_picture="http://192.168.43.34/uploads/"+group_picture;
     }
 
     public String getGroup_content() {

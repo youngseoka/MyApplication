@@ -1,6 +1,7 @@
 package com.example.youngseok.myapplication.Initial;
 
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -19,6 +20,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -28,10 +30,14 @@ import com.example.youngseok.myapplication.Initial.kakao.GetHash;
 import com.example.youngseok.myapplication.Initial.kakao.SessionCallback;
 import com.example.youngseok.myapplication.MainActivity;
 import com.example.youngseok.myapplication.R;
+import com.gun0912.tedpermission.PermissionListener;
+import com.gun0912.tedpermission.TedPermission;
 import com.kakao.auth.Session;
 import com.kakao.usermgmt.LoginButton;
 
 import org.json.JSONObject;
+
+import java.util.List;
 
 public class InitialActivity extends AppCompatActivity {
 
@@ -240,7 +246,14 @@ public class InitialActivity extends AppCompatActivity {
 
 
 
+
+
+
+
+
+
     }
+
 
 
 
