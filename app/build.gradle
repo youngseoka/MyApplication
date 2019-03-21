@@ -56,4 +56,12 @@ dependencies {
     implementation'org.jsoup:jsoup:1.11.3'
     //파싱
 
+    implementation 'com.google.firebase:firebase-core:16.0.6'
+    //채팅 구현을 위한 파이어베이스
+
+    implementation 'com.google.firebase:firebase-database:16.0.5'
+    //리얼타임데이터베이스
+
 }
+apply plugin: 'com.google.gms.google-services'
+//채팅구현을 위한 이어 베이스

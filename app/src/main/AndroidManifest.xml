@@ -30,6 +30,9 @@
         <activity android:name=".Initial.find_pwActivity"></activity>
         <activity android:name=".MygroupActivity"></activity>
         <activity android:name=".make_group.MakeGroupActivity"></activity>
+       <activity android:name=".GroupContent.GroupContentActivity"></activity>
+        <activity android:name=".GroupContent.chat.ChattingActivity"></activity>
+        <activity android:name=".GroupContent.chat.ChattingActivity_2"></activity>
 
         <meta-data
             android:name="com.kakao.sdk.AppKey"

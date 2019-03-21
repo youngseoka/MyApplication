@@ -171,9 +171,6 @@ public class MygroupActivity extends AppCompatActivity {
 
 
 
-
-
-
     private class GetData extends AsyncTask<String, Void, String> {
         ProgressDialog progressDialog;
         String errorString = null;
@@ -308,9 +305,6 @@ public class MygroupActivity extends AppCompatActivity {
 
 
 
-
-
-
     @Override
     protected void onStart(){
         super.onStart();
@@ -330,8 +324,6 @@ public class MygroupActivity extends AppCompatActivity {
                 public void onResponse(String response) {
                     try {
                         JSONObject jsonResponse = new JSONObject(response);
-
-
                         boolean success = jsonResponse.getBoolean("success");
 
                         if(success){
@@ -357,19 +349,15 @@ public class MygroupActivity extends AppCompatActivity {
     }
     @Override
     protected void onRestart(){
-
         super.onRestart();
     }
     @Override
     protected void onResume(){
         mAdapter.notifyDataSetChanged();
         super.onResume();
-
     }
     @Override
     protected void onStop(){
         super.onStop();
-
     }
-
 }

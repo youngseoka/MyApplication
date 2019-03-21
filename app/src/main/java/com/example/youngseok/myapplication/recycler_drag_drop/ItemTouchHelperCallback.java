@@ -17,7 +17,7 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
         int dragFlags = ItemTouchHelper.UP|ItemTouchHelper.DOWN;
         int swipeFlags = ItemTouchHelper.START|ItemTouchHelper.END;
-        return makeMovementFlags(dragFlags,swipeFlags);
+        return makeMovementFlags(dragFlags,0);
 
     }
 

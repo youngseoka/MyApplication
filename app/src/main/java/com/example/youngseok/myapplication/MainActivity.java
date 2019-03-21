@@ -142,6 +142,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+
     PermissionListener permissionListener = new PermissionListener() {
         @Override
         public void onPermissionGranted() {
