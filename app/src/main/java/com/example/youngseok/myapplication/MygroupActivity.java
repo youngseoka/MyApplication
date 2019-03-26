@@ -23,6 +23,7 @@ import com.example.youngseok.myapplication.make_group.MakeGroupActivity;
 import com.example.youngseok.myapplication.make_group.basicGroup;
 import com.example.youngseok.myapplication.recycler_drag_drop.ItemTouchHelperCallback;
 import com.example.youngseok.myapplication.recycler_drag_drop.sortRequest;
+import com.example.youngseok.myapplication.setting.SettingActivity;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
 
@@ -103,6 +104,16 @@ public class MygroupActivity extends AppCompatActivity {
                 finish();
             }
         });
+        myset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent go_set = new Intent(MygroupActivity.this,SettingActivity.class);
+                startActivity(go_set);
+                overridePendingTransition(0,0);
+                finish();
+            }
+        });
+
 
 
 

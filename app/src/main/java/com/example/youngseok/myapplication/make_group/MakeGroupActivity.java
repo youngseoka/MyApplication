@@ -35,6 +35,7 @@ import com.example.youngseok.myapplication.Initial.signupActivity;
 import com.example.youngseok.myapplication.MainActivity;
 import com.example.youngseok.myapplication.MygroupActivity;
 import com.example.youngseok.myapplication.R;
+import com.example.youngseok.myapplication.setting.SettingActivity;
 
 import net.gotev.uploadservice.MultipartUploadRequest;
 import net.gotev.uploadservice.UploadNotificationConfig;
@@ -148,6 +149,17 @@ public class MakeGroupActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        myset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent go_set = new Intent(MakeGroupActivity.this,SettingActivity.class);
+                startActivity(go_set);
+                overridePendingTransition(0,0);
+                finish();
+            }
+        });
+
 
         final EditText insert_recycle_name = findViewById(R.id.insert_recycle_name);
         final EditText insert_recycle_content = findViewById(R.id.insert_recycle_content);

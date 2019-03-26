@@ -2,10 +2,15 @@ package com.example.youngseok.myapplication.GroupContent.chat;
 
 
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.os.AsyncTask;
+import android.os.UserHandle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -16,6 +21,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
+import com.example.youngseok.myapplication.GroupContent.chat.noti.RequestHttpURLConnection;
+import com.example.youngseok.myapplication.Initial.InitialActivity;
 import com.example.youngseok.myapplication.MainActivity;
 import com.example.youngseok.myapplication.MygroupActivity;
 import com.example.youngseok.myapplication.R;
@@ -45,13 +52,25 @@ public class ChattingActivity extends AppCompatActivity {
 
     private EditText user_chat, user_edit;
     private Button user_next;
-    private ListView chat_list;
+
+
+    private String group_name;
+    private String usr_id;
+
+    private String CHAT_NAME;
+    private String USER_NAME;
+
+    private RecyclerView chat_view;
+    private EditText chat_edit;
+    private Button chat_send;
 
     private FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
     private DatabaseReference databaseReference = firebaseDatabase.getReference();
 
-    private String group_name;
-    private String usr_id;
+    private ArrayList<ChatDTO> chatArrayList;
+    private ChatAdapter chatAdapter;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,33 +135,150 @@ public class ChattingActivity extends AppCompatActivity {
 
 
 
-        user_chat = (EditText) findViewById(R.id.user_chat);
-        user_edit = (EditText) findViewById(R.id.user_edit);
-        user_next = (Button) findViewById(R.id.user_next);
 
-        user_chat.setText(group_name);
-        user_edit.setText(usr_id);
 
-        user_next.setOnClickListener(new View.OnClickListener() {
+
+
+
+
+
+        chat_view = findViewById(R.id.chat_view);
+        chat_edit = (EditText) findViewById(R.id.chat_edit);
+        chat_send = (Button) findViewById(R.id.chat_sent);
+
+        // 로그인 화면에서 받아온 채팅방 이름, 유저 이름 저장
+
+        CHAT_NAME = group_name;
+
+        USER_NAME = save_my_id;
+
+
+
+
+
+
+        // 채팅 방 입장
+        openChat(CHAT_NAME);
+
+
+
+
+
+
+
+        // 메시지 전송 버튼에 대한 클릭 리스너 지정
+        chat_send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (user_edit.getText().toString().equals("") || user_chat.getText().toString().equals(""))
+                if (chat_edit.getText().toString().equals(""))
                     return;
 
-                Intent intent = new Intent(ChattingActivity.this, ChattingActivity_2.class);
-                intent.putExtra("chatName", user_chat.getText().toString());
-                intent.putExtra("userName", user_edit.getText().toString());
-                startActivity(intent);
+
+                SimpleDateFormat format3= new SimpleDateFormat ( "MM월 dd일 hh시 mm분");
+                Date time_2 = new Date();
+                String time3 = format3.format(time_2);
+
+
+                ChatDTO chat = new ChatDTO(USER_NAME, chat_edit.getText().toString(),time3); //ChatDTO를 이용하여 데이터를 묶는다.
+                databaseReference.child("chat").child(CHAT_NAME).push().setValue(chat); // 데이터 푸쉬
+                chat_edit.setText(""); //입력창 초기화
+
             }
         });
 
 
+        String url = "https://fcm.googleapis.com/fcm/send";
+        NetworkTask networkTask = new NetworkTask(url, null);
+        networkTask.execute();
 
 
 
     }
 
+    public class NetworkTask extends AsyncTask<Void, Void, String> {
 
+        private String url;
+        private ContentValues values;
+
+        public NetworkTask(String url, ContentValues values) {
+
+            this.url = url;
+            this.values = values;
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+
+            String result; // 요청 결과를 저장할 변수.
+            RequestHttpURLConnection requestHttpURLConnection = new RequestHttpURLConnection();
+            result = requestHttpURLConnection.request(url, values); // 해당 URL로 부터 결과물을 얻어온다.
+
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+
+        }
+    }
+
+
+    private void addMessage(DataSnapshot dataSnapshot, ArrayList adapter) {
+        ChatDTO chatDTO = dataSnapshot.getValue(ChatDTO.class);
+
+        adapter.add(0,chatDTO);
+    }
+
+
+
+    private void openChat(String chatName) {
+        // 리스트 어댑터 생성 및 세팅
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
+        mLayoutManager.setReverseLayout(true);
+        mLayoutManager.setStackFromEnd(true);
+
+
+
+        chat_view.setLayoutManager(mLayoutManager);
+        chatArrayList=new ArrayList<>();
+
+        chatAdapter = new ChatAdapter(this,chatArrayList);
+
+        chat_view.setAdapter(chatAdapter);
+        chatAdapter.notifyDataSetChanged();
+
+        // 데이터 받아오기 및 어댑터 데이터 추가 및 삭제 등..리스너 관리
+        databaseReference.child("chat").child(chatName).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                addMessage(dataSnapshot, chatArrayList);
+
+                chatAdapter.notifyDataSetChanged();
+                Log.e("LOG", "s:"+s);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                //      removeMessage(dataSnapshot, chatAdapter);
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
 
 
 

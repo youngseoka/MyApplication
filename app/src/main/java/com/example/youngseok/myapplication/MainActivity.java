@@ -6,19 +6,22 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageButton;
 
+import com.example.youngseok.myapplication.GroupContent.chat.ChattingActivity;
 import com.example.youngseok.myapplication.make_group.CustomAdapter;
 import com.example.youngseok.myapplication.make_group.MakeGroupActivity;
 import com.example.youngseok.myapplication.make_group.basicGroup;
+import com.example.youngseok.myapplication.setting.SettingActivity;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
 
@@ -27,10 +30,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.sql.Array;
 import java.text.SimpleDateFormat;
@@ -55,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
      private int count = 0;
 
      private String mJsonString;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +104,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        myset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent go_set = new Intent(MainActivity.this,SettingActivity.class);
+                startActivity(go_set);
+                overridePendingTransition(0,0);
+                finish();
+            }
+        });
+
+
 
 
 
@@ -136,6 +155,28 @@ public class MainActivity extends AppCompatActivity {
                 .setPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 .check();
 
+
+
+
+
+
+
+
+
+        String go_chat;
+
+        Intent intent = getIntent();
+        go_chat=intent.getStringExtra("group_name");
+
+        if(TextUtils.isEmpty(go_chat)){
+
+        }
+        else{
+
+            Intent chatting = new Intent(MainActivity.this,ChattingActivity.class);
+            chatting.putExtra("group_name",go_chat);
+            startActivity(chatting);
+        }
 
 
 

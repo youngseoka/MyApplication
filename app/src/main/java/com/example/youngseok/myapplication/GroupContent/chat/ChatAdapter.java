@@ -1,9 +1,11 @@
 package com.example.youngseok.myapplication.GroupContent.chat;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +30,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatHolder>{
 
         protected TextView userName;
         protected TextView message;
+        protected TextView now_time;
 
         public final View mView;
         public ChatHolder(View view){
@@ -37,11 +40,13 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatHolder>{
 
             this.userName=view.findViewById(R.id.chat_name);
             this.message=view.findViewById(R.id.chat_content);
+            this.now_time=view.findViewById(R.id.now_time);
         }
     }
     public ChatAdapter(Context context,ArrayList<ChatDTO> mchat){
         this.mContext=context;
         this.mchat=mchat;
+
 
     }
 
@@ -63,14 +68,31 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatHolder>{
 
         if((mchat.get(position).getUserName()).equals(save_my_id)) {
             Log.e("check","aaaaa");
-           // viewHolder.userName.setText(mchat.get(position).getUserName());
+            viewHolder.userName.setText("");
             viewHolder.message.setText(mchat.get(position).getMessage());
+            viewHolder.message.setGravity(Gravity.RIGHT);
+
+            viewHolder.message.setBackgroundResource(R.drawable.rightbubble);
+            viewHolder.userName.setBackgroundColor(Color.WHITE);
+            viewHolder.now_time.setText(mchat.get(position).getNow_time());
+            viewHolder.now_time.setGravity(Gravity.RIGHT);
+            viewHolder.message.setPadding(0,30,70,0);
+
         }
 
         else
         {Log.e("check","bbbbbb");
             viewHolder.userName.setText(mchat.get(position).getUserName());
+            viewHolder.userName.setBackgroundResource(R.drawable.com_facebook_profile_picture_blank_square);
             viewHolder.message.setText(mchat.get(position).getMessage());
+            viewHolder.message.setGravity(Gravity.LEFT);
+
+            viewHolder.message.setBackgroundResource(R.drawable.leftbubble);
+            viewHolder.now_time.setText(mchat.get(position).getNow_time());
+            viewHolder.now_time.setGravity(Gravity.LEFT);
+            viewHolder.message.setPadding(70,30,0,0);
+
+
         }
 
     }

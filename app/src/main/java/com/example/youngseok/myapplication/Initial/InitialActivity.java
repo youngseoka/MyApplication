@@ -14,6 +14,7 @@ import android.content.pm.Signature;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -51,6 +52,7 @@ public class InitialActivity extends AppCompatActivity {
     private boolean saveLoginData;  //체크박스 체크했는지 안했는지 확인하는친구
 
     private String id;
+    private String pass;
 
 
     private SessionCallback callback;
@@ -75,6 +77,7 @@ public class InitialActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initial);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
 
         Intent intent_loading = new Intent(InitialActivity.this,loadingActivity.class);
         startActivity(intent_loading);
@@ -103,7 +106,11 @@ public class InitialActivity extends AppCompatActivity {
         loadData();
         if(saveLoginData){
             insert_id.setText(id);
+            insert_password.setText(pass);
             remember_id.setChecked(saveLoginData);
+            save_my_id=id;
+            login();
+            //이거랑 로그인 하는거까지 넣자
         }
 
 
@@ -147,74 +154,7 @@ public class InitialActivity extends AppCompatActivity {
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String id = insert_id.getText().toString();
-                String password = insert_password.getText().toString();
-
-
-                Response.Listener<String> responseLisner = new Response.Listener<String>(){
-
-
-
-                    @Override
-
-                    public void onResponse(String response) {
-
-                        try{
-
-                            JSONObject jsonResponse = new JSONObject(response);
-
-                            boolean success = jsonResponse.getBoolean("success");
-
-
-
-                            if(success){
-
-
-
-                                Intent intent = new Intent(InitialActivity.this, MainActivity.class);
-                                save_my_id = insert_id.getText().toString();
-
-                                startActivity(intent);
-
-                                finish();
-
-                            }else {
-
-                                AlertDialog.Builder builder = new AlertDialog.Builder(InitialActivity.this);
-
-                                AlertDialog dialog = builder.setMessage("아이디와 비밀번호를 다시 확인해주세요!")
-
-                                        .setNegativeButton("확인", null)
-
-                                        .create();
-
-                                dialog.show();
-
-
-
-                            }
-
-
-
-                        }catch (Exception e){
-
-                            e.printStackTrace();
-
-                        }
-
-                    }
-
-                };
-
-
-
-                LoginRequest loginRequest = new LoginRequest(id, password, responseLisner);
-
-                RequestQueue queue = Volley.newRequestQueue(InitialActivity.this);
-
-                queue.add(loginRequest);
-
-
+                login();
 
             }
 
@@ -274,6 +214,96 @@ public class InitialActivity extends AppCompatActivity {
 
 
 
+    private void login(){
+
+
+
+        String id = insert_id.getText().toString();
+        String password = insert_password.getText().toString();
+
+
+        Response.Listener<String> responseLisner = new Response.Listener<String>(){
+
+
+
+            @Override
+
+            public void onResponse(String response) {
+
+                try{
+
+                    JSONObject jsonResponse = new JSONObject(response);
+
+                    boolean success = jsonResponse.getBoolean("success");
+
+
+
+                    if(success){
+
+
+                        String group_name;
+
+                        Intent intent_getgroup = getIntent();
+                        group_name=intent_getgroup.getStringExtra("group_name");
+
+                        if(TextUtils.isEmpty(group_name)){
+                            Intent intent = new Intent(InitialActivity.this, MainActivity.class);
+                            save_my_id = insert_id.getText().toString();
+
+                            startActivity(intent);
+
+                            finish();
+                        }
+                        else{
+                            Log.e("pleasedd",group_name);
+
+                            Intent intent = new Intent(InitialActivity.this, MainActivity.class);
+                            intent.putExtra("group_name",group_name);
+                            save_my_id = insert_id.getText().toString();
+
+                            startActivity(intent);
+
+                            finish();
+                        }
+
+
+
+                    }else {
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(InitialActivity.this);
+
+                        AlertDialog dialog = builder.setMessage("아이디와 비밀번호를 다시 확인해주세요!")
+
+                                .setNegativeButton("확인", null)
+
+                                .create();
+
+                        dialog.show();
+
+
+
+                    }
+
+
+
+                }catch (Exception e){
+
+                    e.printStackTrace();
+
+                }
+
+            }
+
+        };
+
+
+
+        LoginRequest loginRequest = new LoginRequest(id, password, responseLisner);
+
+        RequestQueue queue = Volley.newRequestQueue(InitialActivity.this);
+
+        queue.add(loginRequest);
+    }
 
 
 
@@ -292,12 +322,14 @@ public class InitialActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = appData.edit();
         editor.putBoolean("SAVE_LOGIN_DATA",remember_id.isChecked());
         editor.putString("ID",insert_id.getText().toString().trim());
+        editor.putString("PASS",insert_password.getText().toString().trim());
         editor.apply();
     }
     private void loadData(){
         saveLoginData=appData.getBoolean("SAVE_LOGIN_DATA",false);
 
         id = appData.getString("ID","");
+        pass=appData.getString("PASS","");
     }
 
 
@@ -327,7 +359,9 @@ public class InitialActivity extends AppCompatActivity {
         loadData();
         if(saveLoginData){
             insert_id.setText(id);
+            insert_password.setText(pass);
             remember_id.setChecked(saveLoginData);
+            login();
         }
 
         android.util.Log.i("test","onRestart_initial");

@@ -56,11 +56,17 @@ dependencies {
     implementation'org.jsoup:jsoup:1.11.3'
     //파싱
 
-    implementation 'com.google.firebase:firebase-core:16.0.6'
+    implementation 'com.google.firebase:firebase-core:16.0.7'
     //채팅 구현을 위한 파이어베이스
 
     implementation 'com.google.firebase:firebase-database:16.0.5'
     //리얼타임데이터베이스
+
+    implementation 'com.google.firebase:firebase-messaging:17.3.4'
+    //푸시알람을 위한 메시징
+
+    implementation 'com.google.firebase:firebase-auth:16.2.0'
+    //인증확인
 
 }
 apply plugin: 'com.google.gms.google-services'
