@@ -17,11 +17,16 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
+
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.Volley;
 import com.example.youngseok.myapplication.GroupContent.chat.noti.RequestHttpURLConnection;
+import com.example.youngseok.myapplication.GroupContent.chat.noti.myroomValidate;
 import com.example.youngseok.myapplication.Initial.InitialActivity;
 import com.example.youngseok.myapplication.MainActivity;
 import com.example.youngseok.myapplication.MygroupActivity;
@@ -35,9 +40,20 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 import static com.example.youngseok.myapplication.Initial.InitialActivity.save_my_id;
 
@@ -71,6 +87,8 @@ public class ChattingActivity extends AppCompatActivity {
     private ChatAdapter chatAdapter;
 
 
+    private CheckBox notibox;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +115,7 @@ public class ChattingActivity extends AppCompatActivity {
         usr_id=save_my_id;
 
 
+        notibox = findViewById(R.id.noti_box);
 
 
         timeline.setOnClickListener(new View.OnClickListener() {
@@ -135,13 +154,6 @@ public class ChattingActivity extends AppCompatActivity {
 
 
 
-
-
-
-
-
-
-
         chat_view = findViewById(R.id.chat_view);
         chat_edit = (EditText) findViewById(R.id.chat_edit);
         chat_send = (Button) findViewById(R.id.chat_sent);
@@ -155,6 +167,8 @@ public class ChattingActivity extends AppCompatActivity {
 
 
 
+
+        check_my_room();
 
 
         // 채팅 방 입장
@@ -177,11 +191,45 @@ public class ChattingActivity extends AppCompatActivity {
                 SimpleDateFormat format3= new SimpleDateFormat ( "MM월 dd일 hh시 mm분");
                 Date time_2 = new Date();
                 String time3 = format3.format(time_2);
+                final String chat_nae = chat_edit.getText().toString();
 
 
                 ChatDTO chat = new ChatDTO(USER_NAME, chat_edit.getText().toString(),time3); //ChatDTO를 이용하여 데이터를 묶는다.
                 databaseReference.child("chat").child(CHAT_NAME).push().setValue(chat); // 데이터 푸쉬
+
+
+
+
+                Thread tha = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        OkHttpClient client = new OkHttpClient();
+
+                        MediaType mediaType = MediaType.parse("application/json");
+                        RequestBody body = RequestBody.create(mediaType, "{\n    \"to\": \"/topics/ALL\",\n    \"data\": {\n        \"title\": \""+CHAT_NAME+"\",\n        \"content\": \""+"공지 : "+chat_nae+"\"\n    }\n}");
+                        Request request = new Request.Builder()
+                                .url("https://fcm.googleapis.com/fcm/send")
+                                .post(body)
+                                .addHeader("Content-Type", "application/json")
+                                .addHeader("Authorization", "key=AAAAveVy79M:APA91bGzxsbSp9kPiLXgdAfSTYXGTCmTWHAo_NF8u8Lugr99tlwQQgH6APaVLsTjOWmNcJ9nXOcKVHMYP4kFWi5f1G-BpjeJP0dkualEunGc1MBNZaNQMnVvuJHZnuH0SylrJfBtFL7k")
+                                .build();
+                        try {
+                            Response response = client.newCall(request).execute();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+                if (notibox.isChecked()==true){
+                    tha.start();
+                }
+
+
+
                 chat_edit.setText(""); //입력창 초기화
+
+
 
             }
         });
@@ -280,6 +328,42 @@ public class ChattingActivity extends AppCompatActivity {
         });
     }
 
+    private void check_my_room(){
+        com.android.volley.Response.Listener<String> responseListener = new com.android.volley.Response.Listener<String>(){
+
+
+
+                    @Override
+                    public void onResponse(String response){
+                        try{
+
+
+                            JSONObject jsonResponse = new JSONObject(response);
+                            boolean success =jsonResponse.getBoolean("success");
+                            final String joiner = jsonResponse.getString("joiner");
+                            if(success){
+
+                                if(save_my_id.equals(joiner)){
+                                    notibox.setVisibility(View.VISIBLE);
+                                }
+
+                            }
+                            else{
+
+                                Log.e("tjdrhdgo","atjdrhdgoa");
+                            }
+                        }
+                        catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                };
+                //volley 라이브러리 이용해서 실제 서버와 통신
+                myroomValidate myroomvalidate = new myroomValidate(save_my_id,group_name,responseListener);
+                RequestQueue queue = Volley.newRequestQueue(ChattingActivity.this);
+                queue.add(myroomvalidate);
+
+    }
 
 
 

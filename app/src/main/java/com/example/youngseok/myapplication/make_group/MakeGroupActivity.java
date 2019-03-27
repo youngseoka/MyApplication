@@ -211,7 +211,7 @@ public class MakeGroupActivity extends AppCompatActivity {
                 int int_count = Integer.parseInt(count);
                 int_count++;
                 String to =String.valueOf(int_count);
-                insertRequest insertrequest =new insertRequest(strid,strname,strcontent,strsumnail,File_name,to,responseListener);
+                insertRequest insertrequest =new insertRequest(strid,strname,strcontent,strsumnail,File_name,to,strid,responseListener);
                 RequestQueue queue = Volley.newRequestQueue(MakeGroupActivity.this);
 
                 queue.add(insertrequest);

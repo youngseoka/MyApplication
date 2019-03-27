@@ -48,17 +48,7 @@
 
 
 
-        <service
 
-            android:name=".GroupContent.chat.noti.FirebaseInstanceIDService">
-
-            <intent-filter>
-
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
-
-            </intent-filter>
-
-        </service>
 
 
 

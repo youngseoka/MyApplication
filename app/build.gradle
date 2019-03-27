@@ -68,6 +68,10 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth:16.2.0'
     //인증확인
 
+    implementation 'com.squareup.okhttp3:okhttp:3.6.0'
+    //post전송
+
+
 }
 apply plugin: 'com.google.gms.google-services'
 //채팅구현을 위한 이어 베이스

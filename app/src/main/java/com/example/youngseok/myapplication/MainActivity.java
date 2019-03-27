@@ -22,6 +22,7 @@ import com.example.youngseok.myapplication.make_group.CustomAdapter;
 import com.example.youngseok.myapplication.make_group.MakeGroupActivity;
 import com.example.youngseok.myapplication.make_group.basicGroup;
 import com.example.youngseok.myapplication.setting.SettingActivity;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
 
@@ -177,6 +178,10 @@ public class MainActivity extends AppCompatActivity {
             chatting.putExtra("group_name",go_chat);
             startActivity(chatting);
         }
+
+
+        FirebaseMessaging.getInstance().subscribeToTopic("ALL");
+
 
 
 
