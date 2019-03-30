@@ -89,6 +89,8 @@ public class ChattingActivity extends AppCompatActivity {
 
     private CheckBox notibox;
 
+    private String noti_flag = "0";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -194,8 +196,7 @@ public class ChattingActivity extends AppCompatActivity {
                 final String chat_nae = chat_edit.getText().toString();
 
 
-                ChatDTO chat = new ChatDTO(USER_NAME, chat_edit.getText().toString(),time3); //ChatDTO를 이용하여 데이터를 묶는다.
-                databaseReference.child("chat").child(CHAT_NAME).push().setValue(chat); // 데이터 푸쉬
+
 
 
 
@@ -223,9 +224,15 @@ public class ChattingActivity extends AppCompatActivity {
 
                 if (notibox.isChecked()==true){
                     tha.start();
+                    noti_flag="1";
+                }
+                else if(notibox.isChecked()==false){
+                    noti_flag="0";
                 }
 
 
+                ChatDTO chat = new ChatDTO(USER_NAME, chat_edit.getText().toString(),time3,noti_flag); //ChatDTO를 이용하여 데이터를 묶는다.
+                databaseReference.child("chat").child(CHAT_NAME).push().setValue(chat); // 데이터 푸쉬
 
                 chat_edit.setText(""); //입력창 초기화
 

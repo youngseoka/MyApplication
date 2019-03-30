@@ -32,6 +32,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatHolder>{
         protected TextView message;
         protected TextView now_time;
 
+
         public final View mView;
         public ChatHolder(View view){
             super(view);
@@ -66,36 +67,51 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatHolder>{
             Log.e("check1",mchat.get(position).getUserName());
             Log.e("check2",save_my_id);
 
-        if((mchat.get(position).getUserName()).equals(save_my_id)) {
-            Log.e("check","aaaaa");
-            viewHolder.userName.setText("");
-            viewHolder.message.setText(mchat.get(position).getMessage());
-            viewHolder.message.setGravity(Gravity.RIGHT);
-
-            viewHolder.message.setBackgroundResource(R.drawable.rightbubble);
-            viewHolder.userName.setBackgroundColor(Color.WHITE);
-            viewHolder.now_time.setText(mchat.get(position).getNow_time());
-            viewHolder.now_time.setGravity(Gravity.RIGHT);
-            viewHolder.message.setPadding(0,30,70,0);
-
-        }
-
-        else
-        {Log.e("check","bbbbbb");
-            viewHolder.userName.setText(mchat.get(position).getUserName());
-            viewHolder.userName.setBackgroundResource(R.drawable.com_facebook_profile_picture_blank_square);
-            viewHolder.message.setText(mchat.get(position).getMessage());
-            viewHolder.message.setGravity(Gravity.LEFT);
-
-            viewHolder.message.setBackgroundResource(R.drawable.leftbubble);
-            viewHolder.now_time.setText(mchat.get(position).getNow_time());
-            viewHolder.now_time.setGravity(Gravity.LEFT);
-            viewHolder.message.setPadding(70,30,0,0);
 
 
-        }
+                if ((mchat.get(position).getUserName()).equals(save_my_id)) {
+                    Log.e("check", "aaaaa");
 
-    }
+                    viewHolder.userName.setText("");
+                    viewHolder.message.setText(mchat.get(position).getMessage());
+                    viewHolder.message.setGravity(Gravity.RIGHT);
+
+                    viewHolder.message.setBackgroundResource(R.drawable.rightbubble);
+                    viewHolder.userName.setBackgroundColor(Color.WHITE);
+                    viewHolder.now_time.setText(mchat.get(position).getNow_time());
+                    viewHolder.now_time.setGravity(Gravity.RIGHT);
+                    viewHolder.message.setPadding(0, 30, 70, 0);
+
+                    if(mchat.get(position).getNoti_flag().equals("1")){
+                        viewHolder.message.setBackgroundResource(R.drawable.leftbubble);
+                        viewHolder.userName.setBackgroundResource(R.drawable.megaphone);
+                        viewHolder.message.setGravity(Gravity.LEFT);
+                        viewHolder.now_time.setGravity(Gravity.LEFT);
+                        viewHolder.message.setPadding(70, 30, 0, 0);
+
+                    }
+
+                } else {
+                    Log.e("check", "bbbbbb");
+
+                    viewHolder.userName.setText(mchat.get(position).getUserName());
+                    viewHolder.userName.setBackgroundResource(R.drawable.com_facebook_profile_picture_blank_square);
+                    viewHolder.message.setText(mchat.get(position).getMessage());
+                    viewHolder.message.setGravity(Gravity.LEFT);
+
+                    viewHolder.message.setBackgroundResource(R.drawable.leftbubble);
+                    viewHolder.now_time.setText(mchat.get(position).getNow_time());
+                    viewHolder.now_time.setGravity(Gravity.LEFT);
+                    viewHolder.message.setPadding(70, 30, 0, 0);
+                    if(mchat.get(position).getNoti_flag().equals("1")){
+                      viewHolder.userName.setText("");
+                        viewHolder.userName.setBackgroundResource(R.drawable.megaphone);
+                    }
+
+                }
+            }
+
+
 
     @Override
     public int getItemCount(){
