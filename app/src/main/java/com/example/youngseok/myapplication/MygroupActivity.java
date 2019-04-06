@@ -18,6 +18,7 @@ import android.widget.ImageButton;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
+import com.example.youngseok.myapplication.invite.InviteActivity;
 import com.example.youngseok.myapplication.make_group.CustomAdapter;
 import com.example.youngseok.myapplication.make_group.MakeGroupActivity;
 import com.example.youngseok.myapplication.make_group.basicGroup;
@@ -52,7 +53,7 @@ public class MygroupActivity extends AppCompatActivity {
     ImageButton timeline;
     ImageButton mygroup;
     ImageButton makegroup;
-    ImageButton invatefriend;
+    ImageButton invitefriend;
     ImageButton myset;
 
     private ArrayList<basicGroup> mArrayList;
@@ -81,7 +82,7 @@ public class MygroupActivity extends AppCompatActivity {
         timeline=findViewById(R.id.timeline_btn);
         mygroup=findViewById(R.id.new_my);
         makegroup=findViewById(R.id.new_make);
-        invatefriend=findViewById(R.id.invite_btn);
+        invitefriend=findViewById(R.id.invite_btn);
         myset=findViewById(R.id.setting_btn);
 
 
@@ -109,6 +110,15 @@ public class MygroupActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent go_set = new Intent(MygroupActivity.this,SettingActivity.class);
                 startActivity(go_set);
+                overridePendingTransition(0,0);
+                finish();
+            }
+        });
+        invitefriend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent go_invite = new Intent(MygroupActivity.this,InviteActivity.class);
+                startActivity(go_invite);
                 overridePendingTransition(0,0);
                 finish();
             }

@@ -10,9 +10,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageButton;
 
+import com.example.youngseok.myapplication.invite.InviteActivity;
 import com.example.youngseok.myapplication.make_group.CustomAdapter;
 import com.example.youngseok.myapplication.make_group.MakeGroupActivity;
 import com.example.youngseok.myapplication.make_group.basicGroup;
+import com.example.youngseok.myapplication.setting.SettingActivity;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,7 +28,7 @@ public class basic extends AppCompatActivity {
     ImageButton timeline;
     ImageButton mygroup;
     ImageButton makegroup;
-    ImageButton invatefriend;
+    ImageButton invitefriend;
     ImageButton myset;
 
     private ArrayList<basicGroup> mArrayList;
@@ -51,7 +54,7 @@ public class basic extends AppCompatActivity {
         timeline=findViewById(R.id.timeline_btn);
         mygroup=findViewById(R.id.new_my);
         makegroup=findViewById(R.id.new_make);
-        invatefriend=findViewById(R.id.invite_btn);
+        invitefriend=findViewById(R.id.invite_btn);
         myset=findViewById(R.id.setting_btn);
 
         String keyword = save_my_id;
@@ -88,6 +91,25 @@ public class basic extends AppCompatActivity {
 
 
 
+            }
+        });
+        myset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent go_set = new Intent(basic.this,SettingActivity.class);
+                startActivity(go_set);
+                overridePendingTransition(0,0);
+                finish();
+            }
+        });
+
+        invitefriend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent go_invite = new Intent(basic.this,InviteActivity.class);
+                startActivity(go_invite);
+                overridePendingTransition(0,0);
+                finish();
             }
         });
 

@@ -35,6 +35,7 @@ import com.example.youngseok.myapplication.Initial.signupActivity;
 import com.example.youngseok.myapplication.MainActivity;
 import com.example.youngseok.myapplication.MygroupActivity;
 import com.example.youngseok.myapplication.R;
+import com.example.youngseok.myapplication.invite.InviteActivity;
 import com.example.youngseok.myapplication.setting.SettingActivity;
 
 import net.gotev.uploadservice.MultipartUploadRequest;
@@ -74,7 +75,7 @@ public class MakeGroupActivity extends AppCompatActivity {
     ImageButton timeline;
     ImageButton mygroup;
     ImageButton makegroup;
-    ImageButton invatefriend;
+    ImageButton invitefriend;
     ImageButton myset;
 
 
@@ -127,7 +128,7 @@ public class MakeGroupActivity extends AppCompatActivity {
         timeline=findViewById(R.id.timeline_btn);
         mygroup=findViewById(R.id.new_my);
         makegroup=findViewById(R.id.new_make);
-        invatefriend=findViewById(R.id.invite_btn);
+        invitefriend=findViewById(R.id.invite_btn);
         myset=findViewById(R.id.setting_btn);
 
         timeline.setOnClickListener(new View.OnClickListener() {
@@ -155,6 +156,15 @@ public class MakeGroupActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent go_set = new Intent(MakeGroupActivity.this,SettingActivity.class);
                 startActivity(go_set);
+                overridePendingTransition(0,0);
+                finish();
+            }
+        });
+        invitefriend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent go_invite = new Intent(MakeGroupActivity.this,InviteActivity.class);
+                startActivity(go_invite);
                 overridePendingTransition(0,0);
                 finish();
             }

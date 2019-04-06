@@ -25,15 +25,18 @@ import android.widget.ListView;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
+import com.example.youngseok.myapplication.GroupContent.GroupContentActivity;
 import com.example.youngseok.myapplication.GroupContent.chat.noti.RequestHttpURLConnection;
 import com.example.youngseok.myapplication.GroupContent.chat.noti.myroomValidate;
 import com.example.youngseok.myapplication.Initial.InitialActivity;
 import com.example.youngseok.myapplication.MainActivity;
 import com.example.youngseok.myapplication.MygroupActivity;
 import com.example.youngseok.myapplication.R;
+import com.example.youngseok.myapplication.invite.InviteActivity;
 import com.example.youngseok.myapplication.make_group.CustomAdapter;
 import com.example.youngseok.myapplication.make_group.MakeGroupActivity;
 import com.example.youngseok.myapplication.make_group.basicGroup;
+import com.example.youngseok.myapplication.setting.SettingActivity;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -63,7 +66,7 @@ public class ChattingActivity extends AppCompatActivity {
     ImageButton timeline;
     ImageButton mygroup;
     ImageButton makegroup;
-    ImageButton invatefriend;
+    ImageButton invitefriend;
     ImageButton myset;
 
     private EditText user_chat, user_edit;
@@ -108,7 +111,7 @@ public class ChattingActivity extends AppCompatActivity {
         timeline=findViewById(R.id.timeline_btn);
         mygroup=findViewById(R.id.new_my);
         makegroup=findViewById(R.id.new_make);
-        invatefriend=findViewById(R.id.invite_btn);
+        invitefriend=findViewById(R.id.invite_btn);
         myset=findViewById(R.id.setting_btn);
 
         Intent intent = getIntent();
@@ -151,6 +154,26 @@ public class ChattingActivity extends AppCompatActivity {
 
 
 
+            }
+        });
+
+        myset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent go_set = new Intent(ChattingActivity.this,SettingActivity.class);
+                startActivity(go_set);
+                overridePendingTransition(0,0);
+                finish();
+            }
+        });
+
+        invitefriend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent go_invite = new Intent(ChattingActivity.this,InviteActivity.class);
+                startActivity(go_invite);
+                overridePendingTransition(0,0);
+                finish();
             }
         });
 

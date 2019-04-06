@@ -21,9 +21,11 @@ import com.example.youngseok.myapplication.GroupContent.chat.ChattingActivity;
 import com.example.youngseok.myapplication.MainActivity;
 import com.example.youngseok.myapplication.MygroupActivity;
 import com.example.youngseok.myapplication.R;
+import com.example.youngseok.myapplication.invite.InviteActivity;
 import com.example.youngseok.myapplication.make_group.CustomAdapter;
 import com.example.youngseok.myapplication.make_group.MakeGroupActivity;
 import com.example.youngseok.myapplication.make_group.basicGroup;
+import com.example.youngseok.myapplication.setting.SettingActivity;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
 
@@ -51,7 +53,7 @@ public class GroupContentActivity extends AppCompatActivity {
     ImageButton timeline;
     ImageButton mygroup;
     ImageButton makegroup;
-    ImageButton invatefriend;
+    ImageButton invitefriend;
     ImageButton myset;
 
     Button Chat_btn;
@@ -74,7 +76,7 @@ public class GroupContentActivity extends AppCompatActivity {
         timeline=findViewById(R.id.timeline_btn);
         mygroup=findViewById(R.id.new_my);
         makegroup=findViewById(R.id.new_make);
-        invatefriend=findViewById(R.id.invite_btn);
+        invitefriend=findViewById(R.id.invite_btn);
         myset=findViewById(R.id.setting_btn);
 
         Chat_btn = findViewById(R.id.Chat_btn);
@@ -112,6 +114,25 @@ public class GroupContentActivity extends AppCompatActivity {
 
 
 
+            }
+        });
+        myset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent go_set = new Intent(GroupContentActivity.this,SettingActivity.class);
+                startActivity(go_set);
+                overridePendingTransition(0,0);
+                finish();
+            }
+        });
+
+        invitefriend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent go_invite = new Intent(GroupContentActivity.this,InviteActivity.class);
+                startActivity(go_invite);
+                overridePendingTransition(0,0);
+                finish();
             }
         });
 

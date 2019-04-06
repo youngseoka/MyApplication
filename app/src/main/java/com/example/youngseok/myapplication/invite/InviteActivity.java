@@ -1,75 +1,75 @@
-package com.example.youngseok.myapplication;
+package com.example.youngseok.myapplication.invite;
 
 
-import android.Manifest;
-import android.app.ProgressDialog;
+
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 
-import com.example.youngseok.myapplication.GroupContent.chat.ChattingActivity;
-import com.example.youngseok.myapplication.invite.InviteActivity;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.toolbox.Volley;
+import com.example.youngseok.myapplication.MainActivity;
+import com.example.youngseok.myapplication.MygroupActivity;
+import com.example.youngseok.myapplication.R;
+import com.example.youngseok.myapplication.invite.phone_Validate.phone_validate;
 import com.example.youngseok.myapplication.make_group.CustomAdapter;
 import com.example.youngseok.myapplication.make_group.MakeGroupActivity;
 import com.example.youngseok.myapplication.make_group.basicGroup;
 import com.example.youngseok.myapplication.setting.SettingActivity;
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.gun0912.tedpermission.PermissionListener;
-import com.gun0912.tedpermission.TedPermission;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
-import java.sql.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 import static com.example.youngseok.myapplication.Initial.InitialActivity.save_my_id;
 
-public class MainActivity extends AppCompatActivity {
-     Toolbar toolbar;
+public class InviteActivity extends AppCompatActivity {
+    Toolbar toolbar;
 
-     ImageButton timeline;
-     ImageButton mygroup;
-     ImageButton makegroup;
-     ImageButton invitefriend;
-     ImageButton myset;
+    ImageButton timeline;
+    ImageButton mygroup;
+    ImageButton makegroup;
+    ImageButton invitefriend;
+    ImageButton myset;
 
-     private ArrayList<basicGroup> mArrayList;
-     private CustomAdapter mAdapter;
-     private RecyclerView mRecyclerView;
-     private int count = 0;
+    private ArrayList<basicGroup> mArrayList;
+    private ArrayList<InviteDTO> datas;
+    private InviteAdapter mAdapter;
+    private RecyclerView mRecyclerView;
+    private int count = 0;
 
-     private String mJsonString;
+    private ArrayList<InviteDTO> mArrayList_Invite;
 
-
+    private String mJsonString;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_invite);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         toolbar = findViewById(R.id.toolbar);
@@ -85,11 +85,13 @@ public class MainActivity extends AppCompatActivity {
         invitefriend=findViewById(R.id.invite_btn);
         myset=findViewById(R.id.setting_btn);
 
+        String keyword = save_my_id;
+
 
         timeline.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent go_main = new Intent(MainActivity.this,MainActivity.class);
+                Intent go_main = new Intent(InviteActivity.this,MainActivity.class);
                 startActivity(go_main);
                 overridePendingTransition(0,0);
                 finish();
@@ -99,75 +101,78 @@ public class MainActivity extends AppCompatActivity {
         mygroup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent go_mygroup = new Intent(MainActivity.this,MygroupActivity.class);
+                Intent go_mygroup = new Intent(InviteActivity.this,MygroupActivity.class);
                 startActivity(go_mygroup);
                 overridePendingTransition(0,0);
                 finish();
             }
         });
 
+        makegroup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent go_make = new Intent(InviteActivity.this,MakeGroupActivity.class);
+                startActivity(go_make);
+                overridePendingTransition(0,0);
+                finish();
+            }
+        });
+        invitefriend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent go_invite = new Intent(InviteActivity.this,InviteActivity.class);
+                startActivity(go_invite);
+                overridePendingTransition(0,0);
+                finish();
+            }
+        });
         myset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent go_set = new Intent(MainActivity.this,SettingActivity.class);
+                Intent go_set = new Intent(InviteActivity.this,SettingActivity.class);
                 startActivity(go_set);
                 overridePendingTransition(0,0);
                 finish();
             }
         });
 
-        invitefriend.setOnClickListener(new View.OnClickListener() {
+
+
+        datas = InviteLoader.getData(this);
+
+
+
+
+        Comparator<InviteDTO> cpmasc = new Comparator<InviteDTO>() {
             @Override
-            public void onClick(View v) {
-                Intent go_invite = new Intent(MainActivity.this,InviteActivity.class);
-                startActivity(go_invite);
-                overridePendingTransition(0,0);
-                finish();
+            public int compare(InviteDTO o1, InviteDTO o2) {
+                return o1.getPhonebook_name().compareTo(o2.getPhonebook_name());
             }
-        });
+        };
+        Collections.sort(datas,cpmasc);
+
+
+
+        mArrayList_Invite=new ArrayList<>();
 
 
 
 
 
-        mRecyclerView = findViewById(R.id.main_recycler);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mArrayList = new ArrayList<>();
-
-
-        mAdapter = new CustomAdapter(this,mArrayList);
-        mRecyclerView.setAdapter(mAdapter);
 
 
 
-        String keyword = save_my_id;
+        mAdapter = new InviteAdapter(this,datas);
 
-        mArrayList.clear();
+        RecyclerView recyclerview = findViewById(R.id.invite_recycle);
+        recyclerview.setAdapter(mAdapter);
+        recyclerview.setLayoutManager(new LinearLayoutManager(this));
         mAdapter.notifyDataSetChanged();
+
+
         GetData task = new GetData();
-        task.execute("http://192.168.43.34/basicrecycle/query.php",keyword);
-
-
-        makegroup.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Intent go_make = new Intent(MainActivity.this,MakeGroupActivity.class);
-                startActivity(go_make);
-                overridePendingTransition(0,0);
-                finish();
-
-
-
-            }
-        });
-        TedPermission.with(this)
-                .setPermissionListener(permissionListener)
-                .setDeniedMessage("권한이 거부되었습니다. 사용을 원하시면 설정에서 해당 권한을 직접 허용해주세요.")
-                .setPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                .setPermissions(Manifest.permission.WRITE_CONTACTS)
-                .setPermissions(Manifest.permission.READ_CONTACTS)
-                .check();
+        task.execute( "http://192.168.43.34/Invite/phone_Validate.php", "");
 
 
 
@@ -175,25 +180,6 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
-
-        String go_chat;
-
-        Intent intent = getIntent();
-        go_chat=intent.getStringExtra("group_name");
-
-        if(TextUtils.isEmpty(go_chat)){
-
-        }
-        else{
-
-            Intent chatting = new Intent(MainActivity.this,ChattingActivity.class);
-            chatting.putExtra("group_name",go_chat);
-            startActivity(chatting);
-        }
-
-
-        FirebaseMessaging.getInstance().subscribeToTopic("ALL");
 
 
 
@@ -203,53 +189,43 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    PermissionListener permissionListener = new PermissionListener() {
-        @Override
-        public void onPermissionGranted() {
-
-        }
-
-        @Override
-        public void onPermissionDenied(List<String> deniedPermissions) {
-        }
-    };
 
 
+    private class GetData extends AsyncTask<String, Void, String> {
 
-    private class GetData extends AsyncTask<String, Void, String>{
-        ProgressDialog progressDialog;
+
         String errorString = null;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
 
-            progressDialog = ProgressDialog.show(MainActivity.this,
-                    "Please Wait", null, true, true);
+
         }
+
 
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
 
-            progressDialog.dismiss();
 
-            if(result==null){
+
+
+            if (result == null){
+
 
             }
-            else{
-                mJsonString=result;
+            else {
+
+                mJsonString = result;
                 showResult();
             }
-
-
         }
-
         @Override
         protected String doInBackground(String... params) {
 
             String serverURL = params[0];
-            String postParameters = "id=" + params[1];
+            String postParameters = params[1];
 
 
             try {
@@ -272,6 +248,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                 int responseStatusCode = httpURLConnection.getResponseCode();
+
 
                 InputStream inputStream;
                 if(responseStatusCode == HttpURLConnection.HTTP_OK) {
@@ -299,21 +276,18 @@ public class MainActivity extends AppCompatActivity {
 
             } catch (Exception e) {
 
+
                 errorString = e.toString();
 
                 return null;
             }
 
         }
-
     }
     private void showResult(){
 
         String TAG_JSON="youngseok";
-        String TAG_name = "name";
-        String TAG_content = "content";
-        String TAG_sumnail ="sumnail";
-        String TAG_profile="profile";
+        String TAG_PHONE = "phone";
 
 
         try {
@@ -324,32 +298,57 @@ public class MainActivity extends AppCompatActivity {
 
                 JSONObject item = jsonArray.getJSONObject(i);
 
-                String name = item.getString(TAG_name);
-                String content = item.getString(TAG_content);
-                String sumnail = item.getString(TAG_sumnail);
-                String profile = item.getString(TAG_profile);
+                String phone = item.getString(TAG_PHONE);
 
-                basicGroup basicgroup = new basicGroup();
+                InviteDTO invitedto = new InviteDTO();
 
-                basicgroup.setGroup_name(name);
-                basicgroup.setGroup_content(content);
-                basicgroup.setGroup_sumnail(sumnail);
-                basicgroup.setGroup_picture(profile);
+                invitedto.setPhonebook_phone(phone);
 
-                mArrayList.add(basicgroup);
-                mAdapter.notifyDataSetChanged();
+                mArrayList_Invite.add(invitedto);
+
+
             }
 
 
 
-        } catch (JSONException e) {
 
+        } catch (JSONException e) {
         }
 
+
+        Log.e("tmdthd",String.valueOf(datas.size()));
+
+        for(int index=0;index<datas.size();){
+
+
+            for(int jndex=0;jndex<mArrayList_Invite.size();){
+
+
+                if(datas.get(index).getPhonebook_phone().equals(mArrayList_Invite.get(jndex).getPhonebook_phone())){
+
+
+                    datas.add(0,datas.get(index));
+                    index++;
+                    datas.remove(index);
+                    break;
+
+                }
+                else{
+                    jndex++;
+
+
+                }
+            }
+            index++;
+        }
+
+
+
+        Log.e("tmdthd","endddddisssco");
+        mAdapter.notifyDataSetChanged();
+
+
     }
-
-
-
 
 
 
@@ -371,7 +370,6 @@ public class MainActivity extends AppCompatActivity {
     }
     @Override
     protected void onResume(){
-        mAdapter.notifyDataSetChanged();
         super.onResume();
     }
     @Override
