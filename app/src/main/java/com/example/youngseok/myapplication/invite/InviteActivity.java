@@ -318,6 +318,7 @@ public class InviteActivity extends AppCompatActivity {
 
         Log.e("tmdthd",String.valueOf(datas.size()));
 
+        int count_btn=0;
         for(int index=0;index<datas.size();){
 
 
@@ -326,7 +327,7 @@ public class InviteActivity extends AppCompatActivity {
 
                 if(datas.get(index).getPhonebook_phone().equals(mArrayList_Invite.get(jndex).getPhonebook_phone())){
 
-
+                    count_btn++;
                     datas.add(0,datas.get(index));
                     index++;
                     datas.remove(index);
@@ -340,6 +341,10 @@ public class InviteActivity extends AppCompatActivity {
                 }
             }
             index++;
+        }
+        for(int cndex=0; cndex<count_btn;cndex++){
+            datas.get(cndex).setCount(1);
+            Log.e("tmdth",datas.get(cndex).getPhonebook_phone());
         }
 
 

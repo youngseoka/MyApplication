@@ -68,41 +68,13 @@ public class InviteAdapter extends RecyclerView.Adapter<InviteAdapter.InviteHold
         viewHolder.Phonebook_name.setText(data.getPhonebook_name());
         viewHolder.Phonebook_phone.setText(data.getPhonebook_phone());
 
-        Response.Listener<String> responseListener = new Response.Listener<String>(){
+        if (data.getCount()==1){
+            viewHolder.invite_btn.setText("모임에 초대하기");
 
-            @Override
-            public void onResponse(String response){
-                try{
-
-
-                    JSONObject jsonResponse = new JSONObject(response);
-                    boolean success =jsonResponse.getBoolean("success");
-                    if(success){
-
-                        Log.e("tmdthd","success");
-                        viewHolder.invite_btn.setText("초대하기");
-
-
-
-                    }
-                    else{
-                        Log.e("tmdthd","false");
-                        viewHolder.invite_btn.setText("모임에 초대하기");
-
-
-
-
-                    }
-                }
-                catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-        };
-        //volley 라이브러리 이용해서 실제 서버와 통신
-        phone_validate phone_validate_1 = new phone_validate(data.getPhonebook_phone(),responseListener);
-        RequestQueue queue = Volley.newRequestQueue(mContext);
-        queue.add(phone_validate_1);
+        }
+        else{
+            viewHolder.invite_btn.setText("초대하기");
+        }
 
 
 
