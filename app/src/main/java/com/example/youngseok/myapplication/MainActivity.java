@@ -167,6 +167,7 @@ public class MainActivity extends AppCompatActivity {
                 .setPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 .setPermissions(Manifest.permission.WRITE_CONTACTS)
                 .setPermissions(Manifest.permission.READ_CONTACTS)
+                .setPermissions(Manifest.permission.SEND_SMS)
                 .check();
 
 

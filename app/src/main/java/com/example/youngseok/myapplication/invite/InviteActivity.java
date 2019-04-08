@@ -58,6 +58,8 @@ public class InviteActivity extends AppCompatActivity {
 
     private ArrayList<basicGroup> mArrayList;
     private ArrayList<InviteDTO> datas;
+    private ArrayList<InviteDTO> datas_temp;
+
     private InviteAdapter mAdapter;
     private RecyclerView mRecyclerView;
     private int count = 0;
@@ -140,6 +142,8 @@ public class InviteActivity extends AppCompatActivity {
 
 
         datas = InviteLoader.getData(this);
+
+        datas_temp = new ArrayList<>();
 
 
 
@@ -328,6 +332,8 @@ public class InviteActivity extends AppCompatActivity {
                 if(datas.get(index).getPhonebook_phone().equals(mArrayList_Invite.get(jndex).getPhonebook_phone())){
 
                     count_btn++;
+                    datas_temp.add(0,datas.get(index));
+
                     datas.add(0,datas.get(index));
                     index++;
                     datas.remove(index);
@@ -342,11 +348,27 @@ public class InviteActivity extends AppCompatActivity {
             }
             index++;
         }
+        Log.e("tmdthd",String.valueOf(count_btn));
         for(int cndex=0; cndex<count_btn;cndex++){
-            datas.get(cndex).setCount(1);
+            datas.get(0).setCount(1);
             Log.e("tmdth",datas.get(cndex).getPhonebook_phone());
+            datas.remove(datas.get(0));
         }
 
+
+
+
+        Comparator<InviteDTO> cpmasc = new Comparator<InviteDTO>() {
+            @Override
+            public int compare(InviteDTO o1, InviteDTO o2) {
+
+
+                return o1.getPhonebook_name().compareTo(o2.getPhonebook_name());
+            }
+        };
+        Collections.sort(datas_temp,cpmasc);
+
+        datas.addAll(0,datas_temp);
 
 
         Log.e("tmdthd","endddddisssco");

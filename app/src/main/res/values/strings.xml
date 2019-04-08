@@ -5,6 +5,9 @@
     <string name="default_notification_channel_name">fcm_default_channel</string>
     <string name="default_notification_channel_id">default_channel_id</string>
 
+    <string name="kakao_scheme">kakao5a7a8e155408a017815beb2158e56c2c</string>
+    <string name="kakaolink_host">kakaolink</string>
+
 
 
 </resources>
