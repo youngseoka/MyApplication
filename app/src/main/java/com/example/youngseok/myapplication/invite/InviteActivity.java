@@ -20,8 +20,7 @@ import com.android.volley.toolbox.Volley;
 import com.example.youngseok.myapplication.MainActivity;
 import com.example.youngseok.myapplication.MygroupActivity;
 import com.example.youngseok.myapplication.R;
-import com.example.youngseok.myapplication.invite.phone_Validate.phone_validate;
-import com.example.youngseok.myapplication.make_group.CustomAdapter;
+
 import com.example.youngseok.myapplication.make_group.MakeGroupActivity;
 import com.example.youngseok.myapplication.make_group.basicGroup;
 import com.example.youngseok.myapplication.setting.SettingActivity;

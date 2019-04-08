@@ -153,8 +153,9 @@ implements ItemTouchHelperListener{
             public void onClick(View v) {
              Intent intent = new Intent(v.getContext(),GroupContentActivity.class);
              intent.putExtra("group_name",mbasic.get(position).getGroup_name());
+             intent.putExtra("group_master_key",mbasic.get(position).getMaster_key());
              v.getContext().startActivity(intent);
-               Log.e("adjlskfjwe",mbasic.get(position).getGroup_name());
+               Log.e("adjlskfjwe",mbasic.get(position).getMaster_key());
             }
         });
 

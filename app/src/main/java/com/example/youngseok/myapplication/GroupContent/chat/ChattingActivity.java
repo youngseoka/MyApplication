@@ -75,6 +75,7 @@ public class ChattingActivity extends AppCompatActivity {
 
     private String group_name;
     private String usr_id;
+    private String master_key;
 
     private String CHAT_NAME;
     private String USER_NAME;
@@ -116,6 +117,7 @@ public class ChattingActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         group_name=intent.getStringExtra("group_name");
+        master_key=intent.getStringExtra("master_key");
         Log.e("groupname",group_name);
         usr_id=save_my_id;
 
@@ -185,7 +187,7 @@ public class ChattingActivity extends AppCompatActivity {
 
         // 로그인 화면에서 받아온 채팅방 이름, 유저 이름 저장
 
-        CHAT_NAME = group_name;
+        CHAT_NAME = master_key;
 
         USER_NAME = save_my_id;
 

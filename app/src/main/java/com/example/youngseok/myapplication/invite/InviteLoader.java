@@ -5,14 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
-import android.util.Log;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.toolbox.Volley;
-import com.example.youngseok.myapplication.invite.phone_Validate.phone_validate;
-
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashSet;

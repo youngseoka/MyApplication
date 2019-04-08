@@ -16,8 +16,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.example.youngseok.myapplication.GroupContent.chat.ChattingActivity;
+import com.example.youngseok.myapplication.GroupContent.member_list.Member_listActivity;
 import com.example.youngseok.myapplication.MainActivity;
 import com.example.youngseok.myapplication.MygroupActivity;
 import com.example.youngseok.myapplication.R;
@@ -39,6 +41,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.acl.Group;
 import java.sql.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -59,6 +62,16 @@ public class GroupContentActivity extends AppCompatActivity {
     Button Chat_btn;
 
     private String group_name;
+    private String master_key;
+
+    private TextView member_number;
+
+    private String mJsonString;
+
+    private ArrayList<GroupContentDTO> mArraylist_content;
+
+    Button member_list;
+    Button member_list_small;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +93,9 @@ public class GroupContentActivity extends AppCompatActivity {
         myset=findViewById(R.id.setting_btn);
 
         Chat_btn = findViewById(R.id.Chat_btn);
-        String keyword = save_my_id;
+
+        member_list=findViewById(R.id.member_list);
+        member_list_small=findViewById(R.id.member_list_small);
 
 
         timeline.setOnClickListener(new View.OnClickListener() {
@@ -141,7 +156,27 @@ public class GroupContentActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent go_chat = new Intent(GroupContentActivity.this,ChattingActivity.class);
                 go_chat.putExtra("group_name",group_name);
+                go_chat.putExtra("master_key",master_key);
                 startActivity(go_chat);
+                overridePendingTransition(0,0);
+            }
+        });
+
+        member_list.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent go_member_list = new Intent(GroupContentActivity.this,Member_listActivity.class);
+                go_member_list.putExtra("array",mArraylist_content);
+                startActivity(go_member_list);
+                overridePendingTransition(0,0);
+            }
+        });
+        member_list_small.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent go_member_list = new Intent(GroupContentActivity.this,Member_listActivity.class);
+                go_member_list.putExtra("array",mArraylist_content);
+                startActivity(go_member_list);
                 overridePendingTransition(0,0);
             }
         });
@@ -150,14 +185,170 @@ public class GroupContentActivity extends AppCompatActivity {
 
 
 
+
+
+
         Intent intent = getIntent();
         group_name=intent.getStringExtra("group_name");
+        master_key=intent.getStringExtra("group_master_key");
         Log.e("groupname",group_name);
+        Log.e("groupmaster",master_key);
+
+        toolbar.setTitle(group_name);
+
+        member_number=findViewById(R.id.member_number);
+
+        mArraylist_content=new ArrayList<>();
+
+        GetData task = new GetData();
+        task.execute("http://192.168.43.34/group_content/groupContentRequest.php",master_key);
+
 
 
     }
 
 
+
+    private class GetData extends AsyncTask<String, Void, String> {
+        ProgressDialog progressDialog;
+        String errorString = null;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            progressDialog = ProgressDialog.show(GroupContentActivity.this,
+                    "Please Wait", null, true, true);
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+
+            progressDialog.dismiss();
+
+            if(result==null){
+
+            }
+            else{
+                mJsonString=result;
+                showResult();
+
+            }
+
+            String msg = String.valueOf(mArraylist_content.size());
+            member_number.setText(msg+"명");
+
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            String serverURL = params[0];
+            String postParameters = "master_key=" + params[1];
+
+
+            try {
+
+                URL url = new URL(serverURL);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+
+
+                httpURLConnection.setReadTimeout(5000);
+                httpURLConnection.setConnectTimeout(5000);
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoInput(true);
+                httpURLConnection.connect();
+
+
+                OutputStream outputStream = httpURLConnection.getOutputStream();
+                outputStream.write(postParameters.getBytes("UTF-8"));
+                outputStream.flush();
+                outputStream.close();
+
+
+                int responseStatusCode = httpURLConnection.getResponseCode();
+
+                InputStream inputStream;
+                if(responseStatusCode == HttpURLConnection.HTTP_OK) {
+                    inputStream = httpURLConnection.getInputStream();
+                }
+                else{
+                    inputStream = httpURLConnection.getErrorStream();
+                }
+
+
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+                StringBuilder sb = new StringBuilder();
+                String line;
+
+                while((line = bufferedReader.readLine()) != null){
+                    sb.append(line);
+                }
+
+                bufferedReader.close();
+
+                return sb.toString().trim();
+
+
+            } catch (Exception e) {
+
+                errorString = e.toString();
+
+                return null;
+            }
+
+        }
+
+    }
+    private void showResult(){
+
+        String TAG_JSON="youngseok";
+        String TAG_id = "id";
+        String TAG_name = "name";
+        String TAG_joiner ="joiner";
+
+
+        try {
+            JSONObject jsonObject = new JSONObject(mJsonString);
+            JSONArray jsonArray = jsonObject.getJSONArray(TAG_JSON);
+
+            for(int i=0;i<jsonArray.length();i++){
+
+                JSONObject item = jsonArray.getJSONObject(i);
+
+                String id = item.getString(TAG_id);
+                String name = item.getString(TAG_name);
+                String joiner = item.getString(TAG_joiner);
+
+                GroupContentDTO groupcontentdto = new GroupContentDTO();
+
+                groupcontentdto.setGroup_id(id);
+                groupcontentdto.setGroup_name(name);
+                groupcontentdto.setGroup_joiner(joiner);
+
+                mArraylist_content.add(groupcontentdto);
+            }
+            Log.e("20180408",String.valueOf(mArraylist_content.size()));
+
+            for (int index=0;index<mArraylist_content.size();index++){
+                Log.e("20180408",mArraylist_content.get(index).getGroup_id());
+                Log.e("20180408",mArraylist_content.get(index).getGroup_name());
+                Log.e("20180408",mArraylist_content.get(index).getGroup_joiner());
+            }
+
+
+
+
+
+        } catch (JSONException e) {
+
+        }
+
+
+    }
 
 
 

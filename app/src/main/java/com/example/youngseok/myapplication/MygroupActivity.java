@@ -290,6 +290,7 @@ public class MygroupActivity extends AppCompatActivity {
         String TAG_content = "content";
         String TAG_sumnail ="sumnail";
         String TAG_profile="profile";
+        String TAG_master_key="master_key";
 
 
         try {
@@ -304,6 +305,7 @@ public class MygroupActivity extends AppCompatActivity {
                 String content = item.getString(TAG_content);
                 String sumnail = item.getString(TAG_sumnail);
                 String profile = item.getString(TAG_profile);
+                String master_key = item.getString(TAG_master_key);
 
                 basicGroup basicgroup = new basicGroup();
 
@@ -311,6 +313,7 @@ public class MygroupActivity extends AppCompatActivity {
                 basicgroup.setGroup_content(content);
                 basicgroup.setGroup_sumnail(sumnail);
                 basicgroup.setGroup_picture(profile);
+                basicgroup.setMaster_key(master_key);
 
                 mArrayList.add(basicgroup);
                 mAdapter.notifyDataSetChanged();

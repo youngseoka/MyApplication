@@ -6,6 +6,7 @@ public class basicGroup {
     private String group_content;
     private String group_sumnail;
     private String group_picture;
+    private String master_key;
 
 
     public String getGroup_name() {
@@ -39,7 +40,11 @@ public class basicGroup {
         this.group_sumnail = group_sumnail;
     }
 
+    public String getMaster_key() {
+        return master_key;
+    }
 
-
-
+    public void setMaster_key(String master_key) {
+        this.master_key = master_key;
+    }
 }

@@ -43,6 +43,7 @@
         <activity android:name=".GroupContent.chat.ChattingActivity"></activity>
         <activity android:name=".setting.SettingActivity"></activity>
         <activity android:name=".invite.InviteActivity"></activity>
+        <activity android:name=".GroupContent.member_list.Member_listActivity"></activity>
 
         <service
 
