@@ -122,12 +122,13 @@ public class FireBaseMessagingService extends FirebaseMessagingService {
         Log.d(TAG, "10초이내 처리됨");
     }
 
-    private void sendNotification(String title, String messageBody) {
+    private void sendNotification(String title, String messageBody,String master_key) {
         if (title == null){
             //제목이 없는 payload이면
             title = "푸시알림"; //기본제목을 적어 주자.
         }
         Intent intent = new Intent(this, InitialActivity.class);
+        intent.putExtra("master_key",master_key);
         intent.putExtra("group_name",title);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
@@ -259,7 +260,8 @@ public class FireBaseMessagingService extends FirebaseMessagingService {
     private void showResult(){
 
         String TAG_JSON="youngseok";
-        String TAG_name = "name";
+        String TAG_master_key = "master_key";
+        String TAG_name ="name";
 
 
         try {
@@ -271,18 +273,20 @@ public class FireBaseMessagingService extends FirebaseMessagingService {
                 JSONObject item = jsonArray.getJSONObject(i);
 
 
-                String name = item.getString(TAG_name);
+                String master_key = item.getString(TAG_master_key);
+                String name= item.getString(TAG_name);
 
-                Log.e("idid", name);
+                Log.e("idid", master_key);
 
 
-                if(title.equals(name)){
-                    sendNotification(title, body);
+                if(title.equals(master_key)){
+                    sendNotification(name, body,master_key);
                 }
 
                 noti_content noti_content_1 = new noti_content();
 
                 noti_content_1.setGroup_name(name);
+                noti_content_1.setMaster_key(master_key);
 
 
 

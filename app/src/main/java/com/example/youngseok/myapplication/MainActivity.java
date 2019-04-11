@@ -18,6 +18,7 @@ import android.view.View;
 import android.widget.ImageButton;
 
 import com.example.youngseok.myapplication.GroupContent.chat.ChattingActivity;
+import com.example.youngseok.myapplication.Service.Add_member_Service;
 import com.example.youngseok.myapplication.invite.InviteActivity;
 import com.example.youngseok.myapplication.make_group.CustomAdapter;
 import com.example.youngseok.myapplication.make_group.MakeGroupActivity;
@@ -63,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
      private int count = 0;
 
      private String mJsonString;
+
+     private Intent serviceIntent;
 
 
 
@@ -165,9 +168,12 @@ public class MainActivity extends AppCompatActivity {
                 .setPermissionListener(permissionListener)
                 .setDeniedMessage("권한이 거부되었습니다. 사용을 원하시면 설정에서 해당 권한을 직접 허용해주세요.")
                 .setPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .setPermissions(Manifest.permission.READ_EXTERNAL_STORAGE)
                 .setPermissions(Manifest.permission.WRITE_CONTACTS)
                 .setPermissions(Manifest.permission.READ_CONTACTS)
                 .setPermissions(Manifest.permission.SEND_SMS)
+                .setPermissions(Manifest.permission.RECEIVE_BOOT_COMPLETED)
+                .setPermissions(Manifest.permission.FOREGROUND_SERVICE)
                 .check();
 
 
@@ -179,23 +185,38 @@ public class MainActivity extends AppCompatActivity {
 
 
         String go_chat;
+        String go_vali;
 
         Intent intent = getIntent();
-        go_chat=intent.getStringExtra("group_name");
-
+        go_chat=intent.getStringExtra("master_key");
+        go_vali=intent.getStringExtra("group_name");
         if(TextUtils.isEmpty(go_chat)){
 
         }
         else{
 
             Intent chatting = new Intent(MainActivity.this,ChattingActivity.class);
-            chatting.putExtra("group_name",go_chat);
+            chatting.putExtra("master_key",go_chat);
+            chatting.putExtra("group_name",go_vali);
             startActivity(chatting);
         }
 
 
         FirebaseMessaging.getInstance().subscribeToTopic("ALL");
 
+
+
+
+
+
+
+
+        if (Add_member_Service.serviceIntent==null) {
+            serviceIntent = new Intent(this, Add_member_Service.class);
+            startService(serviceIntent);
+        } else {
+            serviceIntent = Add_member_Service.serviceIntent;
+        }
 
 
 
@@ -364,6 +385,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy(){
         super.onDestroy();
+        if (serviceIntent!=null) {
+            stopService(serviceIntent);
+            serviceIntent = null;
+        }
     }
     @Override
     protected void onPause(){

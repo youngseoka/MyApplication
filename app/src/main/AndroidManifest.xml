@@ -8,6 +8,8 @@
     <uses-permission android:name="android.permission.READ_CONTACTS"></uses-permission>
     <uses-permission android:name="android.permission.WRITE_CONTACTS"></uses-permission>
     <uses-permission android:name="android.permission.SEND_SMS"></uses-permission>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"></uses-permission>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"></uses-permission>
 
     <application
         android:allowBackup="true"
@@ -44,18 +46,48 @@
         <activity android:name=".setting.SettingActivity"></activity>
         <activity android:name=".invite.InviteActivity"></activity>
         <activity android:name=".GroupContent.member_list.Member_listActivity"></activity>
+        <activity android:name=".BasicFrame.Recycler.RecyclerActivity"></activity>
+
+
+
+
 
         <service
 
             android:name=".GroupContent.chat.noti.FireBaseMessagingService">
 
+
             <intent-filter>
 
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
 
+
             </intent-filter>
 
         </service>
+
+        <service android:name=".Service.Add_member_Service"
+            android:enabled="true"
+            android:exported="true"></service>
+        <service android:name=".Service.Add_member_Service_restart"
+            android:enabled="true"
+            android:exported="true"></service>
+        <receiver android:name=".Service.Add_member_Broad"></receiver>
+        
+        <receiver android:name=".Service.RebootRecever"
+            android:enabled="true"
+            android:exported="false"
+            android:process=":remote">
+            <intent-filter>
+               <action android:name="android.intent.action.BOOT_COMPLETED"></action>
+
+            </intent-filter>
+
+
+        </receiver>
+
+
+
 
 
 

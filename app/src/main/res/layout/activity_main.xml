@@ -18,7 +18,7 @@
             android:background="@android:color/background_light"
             android:minHeight="?attr/actionBarSize"
             android:theme="?attr/actionBarTheme"
-            app:title="타임라인" />
+            app:title="타임라인->스샷찍어둠 네이버밴드 벤치마킹 ㄱ" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/main_recycler"

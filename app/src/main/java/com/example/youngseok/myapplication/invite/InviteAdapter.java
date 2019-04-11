@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,6 +42,7 @@ public class InviteAdapter extends RecyclerView.Adapter<InviteAdapter.InviteHold
         protected TextView Phonebook_name;
         protected TextView Phonebook_phone;
         protected Button invite_btn;
+        protected CheckBox checkbox;
 
         public final View mView;
         public InviteHolder(View view){
@@ -51,6 +53,7 @@ public class InviteAdapter extends RecyclerView.Adapter<InviteAdapter.InviteHold
             this.Phonebook_name=view.findViewById(R.id.invite_name);
             this.Phonebook_phone=view.findViewById(R.id.invite_number);
             this.invite_btn=view.findViewById(R.id.invite_btn);
+            this.checkbox=view.findViewById(R.id.checkBox);
         }
     }
     public InviteAdapter(Context context,ArrayList<InviteDTO> minvite){

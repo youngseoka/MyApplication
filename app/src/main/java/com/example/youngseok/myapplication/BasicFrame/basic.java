@@ -1,4 +1,4 @@
-package com.example.youngseok.myapplication;
+package com.example.youngseok.myapplication.BasicFrame;
 
 
 import android.content.Intent;
@@ -10,6 +10,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageButton;
 
+import com.example.youngseok.myapplication.MainActivity;
+import com.example.youngseok.myapplication.MygroupActivity;
+import com.example.youngseok.myapplication.R;
 import com.example.youngseok.myapplication.invite.InviteActivity;
 import com.example.youngseok.myapplication.make_group.CustomAdapter;
 import com.example.youngseok.myapplication.make_group.MakeGroupActivity;

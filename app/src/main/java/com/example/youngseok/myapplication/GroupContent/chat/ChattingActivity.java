@@ -117,8 +117,9 @@ public class ChattingActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         group_name=intent.getStringExtra("group_name");
+
         master_key=intent.getStringExtra("master_key");
-        Log.e("groupname",group_name);
+
         usr_id=save_my_id;
 
 

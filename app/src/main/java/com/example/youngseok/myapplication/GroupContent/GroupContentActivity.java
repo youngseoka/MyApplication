@@ -2,7 +2,9 @@ package com.example.youngseok.myapplication.GroupContent;
 
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
@@ -17,7 +19,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.toolbox.Volley;
 import com.example.youngseok.myapplication.GroupContent.chat.ChattingActivity;
 import com.example.youngseok.myapplication.GroupContent.member_list.Member_listActivity;
 import com.example.youngseok.myapplication.MainActivity;
@@ -71,7 +77,7 @@ public class GroupContentActivity extends AppCompatActivity {
     private ArrayList<GroupContentDTO> mArraylist_content;
 
     Button member_list;
-    Button member_list_small;
+    Button moim_exit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,7 +101,7 @@ public class GroupContentActivity extends AppCompatActivity {
         Chat_btn = findViewById(R.id.Chat_btn);
 
         member_list=findViewById(R.id.member_list);
-        member_list_small=findViewById(R.id.member_list_small);
+        moim_exit=findViewById(R.id.moim_exit);
 
 
         timeline.setOnClickListener(new View.OnClickListener() {
@@ -167,17 +173,69 @@ public class GroupContentActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent go_member_list = new Intent(GroupContentActivity.this,Member_listActivity.class);
                 go_member_list.putExtra("array",mArraylist_content);
+                go_member_list.putExtra("master_key",master_key);
                 startActivity(go_member_list);
                 overridePendingTransition(0,0);
             }
         });
-        member_list_small.setOnClickListener(new View.OnClickListener() {
+        moim_exit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent go_member_list = new Intent(GroupContentActivity.this,Member_listActivity.class);
-                go_member_list.putExtra("array",mArraylist_content);
-                startActivity(go_member_list);
-                overridePendingTransition(0,0);
+
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(GroupContentActivity.this);
+                builder.setTitle(group_name);
+                builder.setMessage("정말로 이 모임을 나가시겠어요?");
+                builder.setPositiveButton("예",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+
+
+                                Response.Listener<String> responseListener = new Response.Listener<String>(){
+
+                                    @Override
+                                    public void onResponse(String response){
+                                        try{
+
+
+                                            JSONObject jsonResponse = new JSONObject(response);
+                                            boolean success =jsonResponse.getBoolean("success");
+                                            if(success){
+
+                                               Intent go_main =new Intent(GroupContentActivity.this,MygroupActivity.class);
+                                               startActivity(go_main);
+                                               finish();
+                                            }
+                                            else{
+
+
+                                            }
+                                        }
+                                        catch (Exception e){
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                };
+                                //volley 라이브러리 이용해서 실제 서버와 통신
+                                Moim_exitRequest moim_exitRequest = new Moim_exitRequest(save_my_id,master_key,responseListener);
+                                RequestQueue queue = Volley.newRequestQueue(GroupContentActivity.this);
+                                queue.add(moim_exitRequest);
+
+
+
+                                Toast.makeText(getApplicationContext(),"모임 탈퇴를 완료하였습니다.",Toast.LENGTH_LONG).show();
+                            }
+                        });
+                builder.setNegativeButton("아니오",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        });
+                builder.show();
+
+
+
             }
         });
 

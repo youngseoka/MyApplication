@@ -1,10 +1,14 @@
 package com.example.youngseok.myapplication.invite;
 
-public class InviteDTO {
+import java.io.Serializable;
+
+public class InviteDTO implements Serializable {
 
     private String phonebook_name;
     private String phonebook_phone;
     private int count =0;
+    private String check_box_key;
+    private String id;
 
     public String getPhonebook_name() {
         return phonebook_name;
@@ -30,4 +34,19 @@ public class InviteDTO {
         this.phonebook_phone = phonebook_phone;
     }
 
+    public String getCheck_box_key() {
+        return check_box_key;
+    }
+
+    public void setCheck_box_key(String check_box_key) {
+        this.check_box_key = check_box_key;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 }

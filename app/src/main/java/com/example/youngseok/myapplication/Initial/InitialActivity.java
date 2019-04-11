@@ -242,9 +242,11 @@ public class InitialActivity extends AppCompatActivity {
 
 
                         String group_name;
+                        String group_name_tw;
 
                         Intent intent_getgroup = getIntent();
-                        group_name=intent_getgroup.getStringExtra("group_name");
+                        group_name=intent_getgroup.getStringExtra("master_key");
+                        group_name_tw=intent_getgroup.getStringExtra("group_name");
 
                         if(TextUtils.isEmpty(group_name)){
                             Intent intent = new Intent(InitialActivity.this, MainActivity.class);
@@ -258,7 +260,8 @@ public class InitialActivity extends AppCompatActivity {
                             Log.e("pleasedd",group_name);
 
                             Intent intent = new Intent(InitialActivity.this, MainActivity.class);
-                            intent.putExtra("group_name",group_name);
+                            intent.putExtra("master_key",group_name);
+                            intent.putExtra("group_name",group_name_tw);
                             save_my_id = insert_id.getText().toString();
 
                             startActivity(intent);

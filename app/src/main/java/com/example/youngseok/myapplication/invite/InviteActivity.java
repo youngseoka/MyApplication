@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -17,6 +18,7 @@ import android.widget.ImageButton;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
+import com.example.youngseok.myapplication.GroupContent.member_list.Member_listDTO;
 import com.example.youngseok.myapplication.MainActivity;
 import com.example.youngseok.myapplication.MygroupActivity;
 import com.example.youngseok.myapplication.R;
@@ -58,14 +60,18 @@ public class InviteActivity extends AppCompatActivity {
     private ArrayList<basicGroup> mArrayList;
     private ArrayList<InviteDTO> datas;
     private ArrayList<InviteDTO> datas_temp;
+    private ArrayList<Member_listDTO> member_list;
+    private ArrayList <InviteDTO>save_invite_list;
 
     private InviteAdapter mAdapter;
+    private InviteAdapter_v2 mAdapter_v2;
     private RecyclerView mRecyclerView;
     private int count = 0;
 
     private ArrayList<InviteDTO> mArrayList_Invite;
 
     private String mJsonString;
+    private String moim_master;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,26 +163,51 @@ public class InviteActivity extends AppCompatActivity {
 
 
 
+
+
         mArrayList_Invite=new ArrayList<>();
-
-
-
-
-
-
-
-
-        mAdapter = new InviteAdapter(this,datas);
-
         RecyclerView recyclerview = findViewById(R.id.invite_recycle);
-        recyclerview.setAdapter(mAdapter);
-        recyclerview.setLayoutManager(new LinearLayoutManager(this));
-        mAdapter.notifyDataSetChanged();
-
-
         GetData task = new GetData();
         task.execute( "http://192.168.43.34/Invite/phone_Validate.php", "");
 
+
+
+
+
+
+        member_list = new ArrayList<>();
+        save_invite_list = new ArrayList<>();
+
+
+
+
+
+
+
+        Intent intent = getIntent();
+        moim_master=intent.getStringExtra("moim_master");
+        member_list = (ArrayList<Member_listDTO>) intent.getSerializableExtra("member_list");
+
+        if(TextUtils.isEmpty(moim_master)){
+            Log.e("20180409","abc");
+            mAdapter = new InviteAdapter(this,datas);
+            recyclerview.setAdapter(mAdapter);
+            recyclerview.setLayoutManager(new LinearLayoutManager(this));
+            mAdapter.notifyDataSetChanged();
+        }
+        else
+        {
+            Log.e("20180409","ccc");
+
+
+            mAdapter_v2 = new InviteAdapter_v2(this,datas_temp,save_invite_list);
+            recyclerview.setAdapter(mAdapter_v2);
+            recyclerview.setLayoutManager(new LinearLayoutManager(this));
+            mAdapter_v2.notifyDataSetChanged();
+
+
+
+        }
 
 
 
@@ -291,6 +322,7 @@ public class InviteActivity extends AppCompatActivity {
 
         String TAG_JSON="youngseok";
         String TAG_PHONE = "phone";
+        String TAG_ID="id";
 
 
         try {
@@ -302,9 +334,11 @@ public class InviteActivity extends AppCompatActivity {
                 JSONObject item = jsonArray.getJSONObject(i);
 
                 String phone = item.getString(TAG_PHONE);
+                String id = item.getString(TAG_ID);
 
                 InviteDTO invitedto = new InviteDTO();
 
+                invitedto.setId(id);
                 invitedto.setPhonebook_phone(phone);
 
                 mArrayList_Invite.add(invitedto);
@@ -370,8 +404,37 @@ public class InviteActivity extends AppCompatActivity {
         datas.addAll(0,datas_temp);
 
 
-        Log.e("tmdthd","endddddisssco");
-        mAdapter.notifyDataSetChanged();
+        if(TextUtils.isEmpty(moim_master)){
+            Log.e("20180409","abc");
+            Log.e("tmdthd","endddddisssco");
+            mAdapter.notifyDataSetChanged();
+        }
+        else
+        {
+            Log.e("20180409","ccc");
+            for(int index=0; index<member_list.size();index++){
+                for(int jndex=0;jndex<datas_temp.size();jndex++){
+                    if(member_list.get(index).getPhone().equals(datas_temp.get(jndex).getPhonebook_phone())){
+                        datas_temp.remove(jndex);
+                    }
+                    else
+                    {
+
+                    }
+
+                }
+            }
+            InviteDTO invitedto = new InviteDTO();
+            invitedto.setCount(999);
+            datas_temp.add(invitedto);
+            mAdapter_v2.notifyDataSetChanged();
+
+        }
+
+
+
+
+
 
 
     }
