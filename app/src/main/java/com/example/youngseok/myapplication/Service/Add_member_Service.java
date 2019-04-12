@@ -69,10 +69,9 @@ public class Add_member_Service extends Service {
         wait_member_list = new ArrayList<>();
         appData = getSharedPreferences("appData",MODE_PRIVATE);
         loadData();
-        Intent intent = new Intent(this,InitialActivity.class);
-        pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
-                PendingIntent.FLAG_ONE_SHOT);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+
+
 
 
 
@@ -80,7 +79,7 @@ public class Add_member_Service extends Service {
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    public int onStartCommand(final Intent intent, int flags, int startId) {
         Log.e("20180411","service_start");
         serviceIntent= intent;
 
@@ -105,14 +104,28 @@ public class Add_member_Service extends Service {
 
                             Log.e("20180411", "if" + String.valueOf(wait_member_list.size()));
 
+                            Intent intent_pend = new Intent(getApplicationContext(),InitialActivity.class);
+                            intent_pend.putExtra("pending_master_key",wait_member_list.get(0).getMaster_key());
+                            intent_pend.putExtra("pending_master_id",wait_member_list.get(0).getMaster_id());
+                            intent_pend.putExtra("pending_name",wait_member_list.get(0).getName());
+                            intent_pend.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0 /* Request code */, intent_pend,
+                                    PendingIntent.FLAG_ONE_SHOT);
+
+
+
                             NotificationCompat.Builder mBuilder =
                                     new NotificationCompat.Builder(getApplicationContext(), channelid)
+                                            .setAutoCancel(true)
                                             .setSmallIcon(R.mipmap.ic_launcher)
                                             .setContentTitle("우리 모임 들어올래요?")
                                             .setContentText(wait_member_list.get(0).getName()+"모임에서 초대 메세지가 도착했습니다.")
                                             .setContentIntent(pendingIntent);
+
                             NotificationManager notificationManager =
                                     (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+
 
 
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -171,7 +184,7 @@ public class Add_member_Service extends Service {
                         else {
                             //리스트 비어있음
                         }
-                        Thread.sleep(5000);
+                        Thread.sleep(1000);
 
 
                     } catch (InterruptedException e){

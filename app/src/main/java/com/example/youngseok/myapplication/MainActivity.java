@@ -2,7 +2,9 @@ package com.example.youngseok.myapplication;
 
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
@@ -14,12 +16,19 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.toolbox.Volley;
 import com.example.youngseok.myapplication.GroupContent.chat.ChattingActivity;
 import com.example.youngseok.myapplication.Service.Add_member_Service;
 import com.example.youngseok.myapplication.invite.InviteActivity;
+import com.example.youngseok.myapplication.invite.InviteDTO_confirm;
+import com.example.youngseok.myapplication.invite.InviteDTO_confirm_request;
 import com.example.youngseok.myapplication.make_group.CustomAdapter;
 import com.example.youngseok.myapplication.make_group.MakeGroupActivity;
 import com.example.youngseok.myapplication.make_group.basicGroup;
@@ -66,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
      private String mJsonString;
 
      private Intent serviceIntent;
+     private ArrayList<InviteDTO_confirm> confirm_Arraylist;
 
 
 
@@ -204,6 +214,8 @@ public class MainActivity extends AppCompatActivity {
 
         FirebaseMessaging.getInstance().subscribeToTopic("ALL");
 
+        confirm_Arraylist = new ArrayList<>();
+
 
 
 
@@ -218,6 +230,82 @@ public class MainActivity extends AppCompatActivity {
             serviceIntent = Add_member_Service.serviceIntent;
         }
 
+        Intent get_pending = getIntent();
+        final String pending_master_key;
+        String pending_master_id;
+        String pending_name;
+        pending_master_key = get_pending.getStringExtra("pending_main_key");
+        pending_master_id=get_pending.getStringExtra("pending_main_id");
+        pending_name=get_pending.getStringExtra("pending_main_name");
+        if(TextUtils.isEmpty(pending_master_key)){
+            Log.e("20180412-pending","null");
+
+        }
+        else{
+            Log.e("20180412-pending",pending_master_key);
+            GetData_invite_confirm task_confirm = new GetData_invite_confirm();
+            task_confirm.execute("http://192.168.43.34/Invite/invite_confirm",pending_master_key);
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setTitle("그룹에 초대합니다!");
+            builder.setMessage(pending_name+"에서 초대하였습니다!");
+            builder.setPositiveButton("가입",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+
+
+                            Response.Listener<String> responseListener = new Response.Listener<String>(){
+
+                                @Override
+                                public void onResponse(String response){
+                                    try{
+
+
+                                        JSONObject jsonResponse = new JSONObject(response);
+                                        boolean success =jsonResponse.getBoolean("success");
+                                        if(success){
+
+                                        }
+                                        else{
+
+
+                                        }
+                                    }
+                                    catch (Exception e){
+                                        e.printStackTrace();
+                                    }
+                                }
+                            };
+                            //volley 라이브러리 이용해서 실제 서버와 통신
+                            InviteDTO_confirm_request invite_con_req = new InviteDTO_confirm_request(
+                                    confirm_Arraylist.get(0).getId(),
+                                    confirm_Arraylist.get(0).getName(),
+                                    confirm_Arraylist.get(0).getContent(),
+                                    confirm_Arraylist.get(0).getSumnail(),
+                                    confirm_Arraylist.get(0).getProfile(),
+                                    "1",
+                                    save_my_id,pending_master_key,responseListener);
+
+                            RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
+                            queue.add(invite_con_req);
+
+
+
+                            Toast.makeText(getApplicationContext(),"가입완료 되었습니다!",Toast.LENGTH_LONG).show();
+                        }
+                    });
+
+
+
+
+            builder.setNegativeButton("취소",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            Toast.makeText(getApplicationContext(),"취소되었습니다!",Toast.LENGTH_LONG).show();
+
+                        }
+                    });
+            builder.show();
+        }
 
 
 
@@ -373,6 +461,140 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private class GetData_invite_confirm extends AsyncTask<String, Void, String>{
+
+        String errorString = null;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+
+
+            if(result==null){
+
+            }
+            else{
+                mJsonString=result;
+                showResult_invite_confirm();
+            }
+
+
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            String serverURL = params[0];
+            String postParameters = "master_key=" + params[1];
+
+
+            try {
+
+                URL url = new URL(serverURL);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+
+
+                httpURLConnection.setReadTimeout(5000);
+                httpURLConnection.setConnectTimeout(5000);
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoInput(true);
+                httpURLConnection.connect();
+
+
+                OutputStream outputStream = httpURLConnection.getOutputStream();
+                outputStream.write(postParameters.getBytes("UTF-8"));
+                outputStream.flush();
+                outputStream.close();
+
+
+                int responseStatusCode = httpURLConnection.getResponseCode();
+
+                InputStream inputStream;
+                if(responseStatusCode == HttpURLConnection.HTTP_OK) {
+                    inputStream = httpURLConnection.getInputStream();
+                }
+                else{
+                    inputStream = httpURLConnection.getErrorStream();
+                }
+
+
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+                StringBuilder sb = new StringBuilder();
+                String line;
+
+                while((line = bufferedReader.readLine()) != null){
+                    sb.append(line);
+                }
+
+                bufferedReader.close();
+
+                return sb.toString().trim();
+
+
+            } catch (Exception e) {
+
+                errorString = e.toString();
+
+                return null;
+            }
+
+        }
+
+    }
+    private void showResult_invite_confirm(){
+
+        String TAG_JSON="youngseok";
+        String TAG_id="id";
+        String TAG_name = "name";
+        String TAG_content = "content";
+        String TAG_sumnail ="sumnail";
+        String TAG_profile="profile";
+
+
+
+        try {
+            JSONObject jsonObject = new JSONObject(mJsonString);
+            JSONArray jsonArray = jsonObject.getJSONArray(TAG_JSON);
+
+            for(int i=0;i<jsonArray.length();i++){
+
+                JSONObject item = jsonArray.getJSONObject(i);
+
+                String name = item.getString(TAG_name);
+                String id = item.getString(TAG_id);
+                String content = item.getString(TAG_content);
+                String sumnail = item.getString(TAG_sumnail);
+                String profile = item.getString(TAG_profile);
+
+
+
+                InviteDTO_confirm invitedtoconfirm = new InviteDTO_confirm();
+
+                invitedtoconfirm.setId(id);
+                invitedtoconfirm.setName(name);
+                invitedtoconfirm.setContent(content);
+                invitedtoconfirm.setSumnail(sumnail);
+                invitedtoconfirm.setProfile(profile);
+
+
+                confirm_Arraylist.add(invitedtoconfirm);
+            }
+
+
+
+        } catch (JSONException e) {
+
+        }
+
+    }
 
 
 

@@ -68,6 +68,8 @@ public class InitialActivity extends AppCompatActivity {
 
     public static String save_my_id;
 
+    private String pending;
+
 
 
 
@@ -83,6 +85,13 @@ public class InitialActivity extends AppCompatActivity {
         startActivity(intent_loading);
         //로딩화면으로 이동
         Log.i("여기 실행되냐",  "확인하러왔다");
+
+
+
+
+
+
+
 
 
         signup_btn = findViewById(R.id.signup_btn);
@@ -248,9 +257,29 @@ public class InitialActivity extends AppCompatActivity {
                         group_name=intent_getgroup.getStringExtra("master_key");
                         group_name_tw=intent_getgroup.getStringExtra("group_name");
 
+
+
                         if(TextUtils.isEmpty(group_name)){
                             Intent intent = new Intent(InitialActivity.this, MainActivity.class);
                             save_my_id = insert_id.getText().toString();
+
+                            Intent get_pending = getIntent();
+
+                            pending=get_pending.getStringExtra("pending_master_key");
+                            String master_id;
+                            String name;
+                            master_id=get_pending.getStringExtra("pending_master_id");
+                            name=get_pending.getStringExtra("pending_name");
+
+                            if(TextUtils.isEmpty(pending)){
+                                Log.e("20180412","empty");
+                            }
+                            else{
+                                Log.e("20180412",pending);
+                                intent.putExtra("pending_main_key",pending);
+                                intent.putExtra("pending_main_id",master_id);
+                                intent.putExtra("pending_main_name",name);
+                            }
 
                             startActivity(intent);
 
@@ -262,6 +291,14 @@ public class InitialActivity extends AppCompatActivity {
                             Intent intent = new Intent(InitialActivity.this, MainActivity.class);
                             intent.putExtra("master_key",group_name);
                             intent.putExtra("group_name",group_name_tw);
+
+
+
+
+
+
+
+
                             save_my_id = insert_id.getText().toString();
 
                             startActivity(intent);
