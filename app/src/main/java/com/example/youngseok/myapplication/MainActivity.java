@@ -7,18 +7,24 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.OrientationHelper;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.CalendarView;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
@@ -26,6 +32,10 @@ import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
 import com.example.youngseok.myapplication.GroupContent.chat.ChattingActivity;
 import com.example.youngseok.myapplication.Service.Add_member_Service;
+import com.example.youngseok.myapplication.calendar.EventDecorator;
+//import com.example.youngseok.myapplication.calendar.OneDayDecorator;
+import com.example.youngseok.myapplication.calendar.SaturdayDecorator;
+import com.example.youngseok.myapplication.calendar.SundayDecorator;
 import com.example.youngseok.myapplication.invite.InviteActivity;
 import com.example.youngseok.myapplication.invite.InviteDTO_confirm;
 import com.example.youngseok.myapplication.invite.InviteDTO_confirm_request;
@@ -36,6 +46,10 @@ import com.example.youngseok.myapplication.setting.SettingActivity;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
+import com.prolificinteractive.materialcalendarview.CalendarDay;
+import com.prolificinteractive.materialcalendarview.CalendarMode;
+import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
+import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -55,6 +69,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Calendar;
+import java.util.concurrent.Executors;
+
 
 import static com.example.youngseok.myapplication.Initial.InitialActivity.save_my_id;
 
@@ -76,6 +93,10 @@ public class MainActivity extends AppCompatActivity {
 
      private Intent serviceIntent;
      private ArrayList<InviteDTO_confirm> confirm_Arraylist;
+
+     MaterialCalendarView calendar;
+ //    private final OneDayDecorator oneDayDecorator = new OneDayDecorator();
+
 
 
 
@@ -143,22 +164,22 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        mRecyclerView = findViewById(R.id.main_recycler);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mArrayList = new ArrayList<>();
-
-
-        mAdapter = new CustomAdapter(this,mArrayList);
-        mRecyclerView.setAdapter(mAdapter);
+//        mRecyclerView = findViewById(R.id.main_recycler);
+//        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+//        mArrayList = new ArrayList<>();
+//
+//
+//        mAdapter = new CustomAdapter(this,mArrayList);
+//        mRecyclerView.setAdapter(mAdapter);
 
 
 
         String keyword = save_my_id;
 
-        mArrayList.clear();
-        mAdapter.notifyDataSetChanged();
-        GetData task = new GetData();
-        task.execute("http://192.168.43.34/basicrecycle/query.php",keyword);
+//        mArrayList.clear();
+//        mAdapter.notifyDataSetChanged();
+//        GetData task = new GetData();
+//        task.execute("http://192.168.43.34/basicrecycle/query.php",keyword);
 
 
         makegroup.setOnClickListener(new View.OnClickListener() {
@@ -184,6 +205,7 @@ public class MainActivity extends AppCompatActivity {
                 .setPermissions(Manifest.permission.SEND_SMS)
                 .setPermissions(Manifest.permission.RECEIVE_BOOT_COMPLETED)
                 .setPermissions(Manifest.permission.FOREGROUND_SERVICE)
+                .setPermissions(Manifest.permission.ACCESS_FINE_LOCATION)
                 .check();
 
 
@@ -310,7 +332,127 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
+
+
+
+
+
+
+        calendar = findViewById(R.id.calendar);
+        calendar.addDecorators(
+                new SundayDecorator(),
+                new SaturdayDecorator()
+             //   ,oneDayDecorator
+                 );
+        calendar.state().edit()
+                .setFirstDayOfWeek(Calendar.SUNDAY)
+                .setMinimumDate(CalendarDay.from(2017,0,1))
+                .setMaximumDate(CalendarDay.from(2030,11,31))
+                .setCalendarDisplayMode(CalendarMode.MONTHS)
+                   .commit();
+
+
+        calendar.setOnDateChangedListener(new OnDateSelectedListener() {
+            @Override
+            public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
+
+                int Year = date.getYear();
+                int Month = date.getMonth() +1;
+                int Day = date.getDay();
+
+                String shot_Day = Year + "," + Month + "," + Day;
+                calendar.clearSelection();
+
+                Toast.makeText(MainActivity.this,""+shot_Day,Toast.LENGTH_SHORT).show();
+                Log.e("dayday",shot_Day);
+            }
+        });
+
+        String[] result = {"2019,04,13","2019,04,18","2019,05,18","2019,06,18","2019,06,22","2019,06,23","2030,11,31"};
+        new ApiSimulator(result).executeOnExecutor(Executors.newSingleThreadExecutor());
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
+
+
+
+    private class ApiSimulator extends AsyncTask<Void, Void, List<CalendarDay>> {
+
+        String[] Time_Result;
+
+        ApiSimulator(String[] Time_Result){
+            this.Time_Result = Time_Result;
+        }
+
+        @Override
+        protected List<CalendarDay> doInBackground(@NonNull Void... voids) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            Calendar calendar = Calendar.getInstance();
+            ArrayList<CalendarDay> dates = new ArrayList<>();
+
+            /*특정날짜 달력에 점표시해주는곳*/
+            /*월은 0이 1월 년,일은 그대로*/
+            //string 문자열인 Time_Result 을 받아와서 ,를 기준으로짜르고 string을 int 로 변환
+            Log.e("daydayday",String.valueOf(Time_Result.length));
+            for(int i = 0 ; i < Time_Result.length; i++){
+                CalendarDay day = CalendarDay.from(calendar);
+                String[] time = Time_Result[i].split(",");
+
+                int year = Integer.parseInt(time[0]);
+                int month = Integer.parseInt(time[1]);
+                int dayy = Integer.parseInt(time[2]);
+                Log.e("daydaydaydayyear",String.valueOf(year));
+                Log.e("daydaydaydaymonth",String.valueOf(month));
+                Log.e("daydaydaydayday",String.valueOf(dayy));
+
+                dates.add(day);
+                calendar.set(year,month-1,dayy);
+            }
+
+
+
+            return dates;
+        }
+
+        @Override
+        protected void onPostExecute(@NonNull List<CalendarDay> calendarDays) {
+            super.onPostExecute(calendarDays);
+
+            if (isFinishing()) {
+                return;
+            }
+
+            calendar.addDecorator(new EventDecorator(Color.GREEN, calendarDays,MainActivity.this));
+        }
+    }
+
+
+
+
+
+
+
+
+
+
 
 
     PermissionListener permissionListener = new PermissionListener() {
@@ -622,7 +764,7 @@ public class MainActivity extends AppCompatActivity {
     }
     @Override
     protected void onResume(){
-        mAdapter.notifyDataSetChanged();
+//        mAdapter.notifyDataSetChanged();
         super.onResume();
     }
     @Override

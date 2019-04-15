@@ -52,6 +52,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 
 import static com.example.youngseok.myapplication.Initial.InitialActivity.save_my_id;
@@ -193,6 +194,8 @@ public class Member_listActivity extends AppCompatActivity {
 
 
 
+
+
         //여기서 나누고 지지고 볶고 해보장
 
 
@@ -299,6 +302,8 @@ public class Member_listActivity extends AppCompatActivity {
                 showResult();
 
             }
+
+
         }
 
         @Override
@@ -403,13 +408,9 @@ public class Member_listActivity extends AppCompatActivity {
             }
             Log.e("20180409",String.valueOf(member_list_Array.size()));
 
-            for (int index=0;index<member_list_Array.size();index++){
-                Log.e("20180409",member_list_Array.get(index).getName());
-                Log.e("20180409",member_list_Array.get(index).getNickname());
-                Log.e("20180409",member_list_Array.get(index).getId());
-                Log.e("20180409",member_list_Array.get(index).getPhone());
-                Log.e("20180409",member_list_Array.get(index).getStatus());
-            }
+
+
+
 
 
 
@@ -418,6 +419,8 @@ public class Member_listActivity extends AppCompatActivity {
         } catch (JSONException e) {
 
         }
+        Collections.reverse(member_list_Array);
+
 
         mAdapter.notifyDataSetChanged();
 

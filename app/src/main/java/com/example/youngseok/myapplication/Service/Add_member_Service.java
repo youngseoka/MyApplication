@@ -184,7 +184,7 @@ public class Add_member_Service extends Service {
                         else {
                             //리스트 비어있음
                         }
-                        Thread.sleep(1000);
+                        Thread.sleep(100000);
 
 
                     } catch (InterruptedException e){

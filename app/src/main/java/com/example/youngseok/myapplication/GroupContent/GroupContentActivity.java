@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
+import com.example.youngseok.myapplication.GroupContent.Schedule.ScheduleActivity;
 import com.example.youngseok.myapplication.GroupContent.chat.ChattingActivity;
 import com.example.youngseok.myapplication.GroupContent.member_list.Member_listActivity;
 import com.example.youngseok.myapplication.MainActivity;
@@ -78,6 +79,8 @@ public class GroupContentActivity extends AppCompatActivity {
 
     Button member_list;
     Button moim_exit;
+
+    Button schedule_check;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -241,6 +244,17 @@ public class GroupContentActivity extends AppCompatActivity {
 
 
 
+        schedule_check = findViewById(R.id.schedule_check);
+        schedule_check.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent go_schedule = new Intent(GroupContentActivity.this,ScheduleActivity.class);
+                go_schedule.putExtra("array",mArraylist_content);
+                go_schedule.putExtra("master_key",master_key);
+                startActivity(go_schedule);
+                overridePendingTransition(0,0);
+            }
+        });
 
 
 

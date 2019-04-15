@@ -98,8 +98,7 @@
                 android:id="@+id/button7"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="투표" />
+                android:layout_weight="1" />
 
             <Button
                 android:id="@+id/member_list"
@@ -123,11 +122,11 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/button3"
+                android:id="@+id/schedule_check"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="일정 만들기" />
+                android:text="일정 확인" />
 
             <Button
                 android:id="@+id/button5"
@@ -162,14 +161,14 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="Button" />
+                android:text="영수증 등록" />
 
             <Button
                 android:id="@+id/button9"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="Button" />
+                android:text="촬영" />
         </LinearLayout>
     </LinearLayout>
 

@@ -4,7 +4,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.example.youngseok.myapplication"
-        minSdkVersion 23
+        minSdkVersion 26
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
@@ -76,6 +76,9 @@ dependencies {
 
 
     implementation group: 'com.kakao.sdk', name: 'kakaotalk', version: '1.15.1'
+
+    implementation 'com.prolificinteractive:material-calendarview:1.4.3'
+    //달력
 }
 apply plugin: 'com.google.gms.google-services'
 //채팅구현을 위한 이어 베이스
