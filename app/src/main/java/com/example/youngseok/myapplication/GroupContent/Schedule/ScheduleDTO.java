@@ -1,9 +1,11 @@
 package com.example.youngseok.myapplication.GroupContent.Schedule;
 
-public class ScheduleDTO {
-    private String year;
-    private String month;
-    private String day;
+import java.io.Serializable;
+
+public class ScheduleDTO implements Serializable {
+    private int year;
+    private int month;
+    private int day;
     private String name;
     private String master_key;
     private String schedule_content;
@@ -12,15 +14,15 @@ public class ScheduleDTO {
     private String time_minute;
     private String schedule_content_detail;
 
-    public String getYear() {
+    public int getYear() {
         return year;
     }
 
-    public String getMonth() {
+    public int getMonth() {
         return month;
     }
 
-    public String getDay() {
+    public int getDay() {
         return day;
     }
 
@@ -32,15 +34,15 @@ public class ScheduleDTO {
         return master_key;
     }
 
-    public void setYear(String year) {
+    public void setYear(int year) {
         this.year = year;
     }
 
-    public void setMonth(String month) {
+    public void setMonth(int month) {
         this.month = month;
     }
 
-    public void setDay(String day) {
+    public void setDay(int day) {
         this.day = day;
     }
 

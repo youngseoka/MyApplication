@@ -11,6 +11,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -33,6 +34,7 @@ import com.example.youngseok.myapplication.GroupContent.GroupContentDTO;
 import com.example.youngseok.myapplication.MainActivity;
 import com.example.youngseok.myapplication.MygroupActivity;
 import com.example.youngseok.myapplication.R;
+import com.example.youngseok.myapplication.calendar.ClearDecorator;
 import com.example.youngseok.myapplication.calendar.EventDecorator;
 import com.example.youngseok.myapplication.calendar.OneDayDecorator;
 import com.example.youngseok.myapplication.calendar.SaturdayDecorator;
@@ -58,10 +60,13 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executors;
 
+import static com.example.youngseok.myapplication.GroupContent.Schedule.ScheduleAdapter.schedule_marker_switch;
 import static com.example.youngseok.myapplication.Initial.InitialActivity.save_my_id;
 
 public class ScheduleActivity extends AppCompatActivity {
@@ -75,13 +80,16 @@ public class ScheduleActivity extends AppCompatActivity {
     ImageButton myset;
 
     MaterialCalendarView calendar;
-    private final OneDayDecorator oneDayDecorator = new OneDayDecorator();
+
 
     private ArrayList<GroupContentDTO> groupcontent_Array;
+    private ArrayList<Dialog_master_id_DTO> dialog_master_id;
     private String master_key;
     private FloatingActionButton add_btn;
 
     private ArrayList<ScheduleDTO> scheduleArraylist;
+
+    private ArrayList<ScheduleDTO> schedule_clear_array;
     private String shot_date ="";
 
     private String str_year="";
@@ -176,9 +184,14 @@ public class ScheduleActivity extends AppCompatActivity {
         Intent intent = getIntent();
         groupcontent_Array = (ArrayList<GroupContentDTO>) intent.getSerializableExtra("array");
         master_key=intent.getStringExtra("master_key");
+        dialog_master_id = new ArrayList<>();
+        Dialog_master_id_DTO dialog_master_id_dto = new Dialog_master_id_DTO();
+        dialog_master_id_dto.setId(groupcontent_Array.get(0).getGroup_id());
+        dialog_master_id.add(dialog_master_id_dto);
 
 
         scheduleArraylist = new ArrayList<>();
+        schedule_clear_array=new ArrayList<>();
 
         GetData task = new GetData();
         task.execute("http://192.168.43.34/Schedule/schedule_check.php",master_key);
@@ -213,6 +226,7 @@ public class ScheduleActivity extends AppCompatActivity {
                     final EditText edit_schedule_title = view.findViewById(R.id.edit_schedule_title);
                     final EditText edit_schedule_content = view.findViewById(R.id.edit_schedule_content);
                     final Button schedule_confirm_btn = view.findViewById(R.id.schedult_confirm_btn);
+
 
 
                     hour = dateandtime.get(Calendar.HOUR_OF_DAY);
@@ -258,11 +272,11 @@ public class ScheduleActivity extends AppCompatActivity {
                         public void onClick(View v) {
 
                             if(TextUtils.isEmpty(edit_schedule_title.getText())){
-                                Toast.makeText(getApplicationContext(),"일정 제목을 입력해주세요",Toast.LENGTH_SHORT).show();
+                                Toast.makeText(ScheduleActivity.this,"일정 제목을 입력해주세요",Toast.LENGTH_SHORT).show();
                                 return;
                             }
                             if(TextUtils.isEmpty(edit_schedule_content.getText())){
-                                Toast.makeText(getApplicationContext(),"일정 내용을 입력해주세요",Toast.LENGTH_SHORT).show();
+                                Toast.makeText(ScheduleActivity.this,"일정 내용을 입력해주세요",Toast.LENGTH_SHORT).show();
                                 return;
                             }
 
@@ -308,7 +322,7 @@ public class ScheduleActivity extends AppCompatActivity {
                                     ,String.valueOf(minute_int),responseListener);
                             RequestQueue queue = Volley.newRequestQueue(ScheduleActivity.this);
                             queue.add(scheduleRequest);
-
+                            adapter.notifyDataSetChanged();
                             alertdialog.dismiss();
 
 
@@ -334,6 +348,47 @@ public class ScheduleActivity extends AppCompatActivity {
 
 
 
+        Thread mthread =new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true){
+                    try {
+                        if(schedule_marker_switch==true){
+                            schedule_marker_switch=false;
+
+                            for (int index=0; index<schedule_clear_array.size();index++){
+                                Log.e("soso",schedule_clear_array.get(index).getSchedule_content());
+                            }
+                           runOnUiThread(new Runnable() {
+                               @Override
+                               public void run() {
+                                   Log.e("soso","abc");
+
+                                   calendar.removeDecorators();
+                                   calendar.addDecorators(
+                                           new SundayDecorator(),
+                                           new SaturdayDecorator()
+                                           ,new OneDayDecorator(ScheduleActivity.this)
+                                   );
+
+                                   new ApiSimulator(scheduleArraylist).executeOnExecutor(Executors.newSingleThreadExecutor());
+                               }
+                           });
+                        }
+                        else
+                        {
+                            Log.e("soso","bbb");
+                        }
+                        Thread.sleep(1000);
+                    }catch (Throwable t){
+
+                    }
+                }
+            }
+        });
+        mthread.start();
+
+
 
 
 
@@ -346,14 +401,8 @@ public class ScheduleActivity extends AppCompatActivity {
         calendar.addDecorators(
                 new SundayDecorator(),
                 new SaturdayDecorator()
-                ,oneDayDecorator
+                ,new OneDayDecorator(ScheduleActivity.this)
         );
-        calendar.state().edit()
-                .setFirstDayOfWeek(Calendar.SUNDAY)
-                .setMinimumDate(CalendarDay.from(2017,0,1))
-                .setMaximumDate(CalendarDay.from(2030,11,31))
-                .setCalendarDisplayMode(CalendarMode.MONTHS)
-                .commit();
 
 
 
@@ -388,11 +437,11 @@ public class ScheduleActivity extends AppCompatActivity {
 
 
 
-        new ApiSimulator(scheduleArraylist).executeOnExecutor(Executors.newSingleThreadExecutor());
+  //      new ApiSimulator(scheduleArraylist).executeOnExecutor(Executors.newSingleThreadExecutor());
 
 
 
-        adapter = new ScheduleAdapter(this,scheduleArraylist);
+        adapter = new ScheduleAdapter(this,scheduleArraylist,dialog_master_id,schedule_clear_array);
 
         recyclerview = findViewById(R.id.schedule_recycler);
 
@@ -402,9 +451,25 @@ public class ScheduleActivity extends AppCompatActivity {
 
 
 
+        final SwipeRefreshLayout swipe_this = findViewById(R.id.swipe_new);
+        swipe_this.setColorSchemeResources( R.color.red, R.color.black,R.color.yellow, R.color.blue);
+
+
+        swipe_this.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+
+                adapter.notifyDataSetChanged();
+                swipe_this.setRefreshing(false);
+            }
+        });
+
+
+
 
 
     }
+
 
 
 
@@ -428,6 +493,7 @@ public class ScheduleActivity extends AppCompatActivity {
 
             Calendar calendar = Calendar.getInstance();
             ArrayList<CalendarDay> dates = new ArrayList<>();
+            calendar.clear();
 
             /*특정날짜 달력에 점표시해주는곳*/
             /*월은 0이 1월 년,일은 그대로*/
@@ -437,9 +503,9 @@ public class ScheduleActivity extends AppCompatActivity {
                 CalendarDay day = CalendarDay.from(calendar);
 //                String[] time = Time_Result[i].split(",");
 
-                int year = Integer.parseInt(time_sche.get(i).getYear());
-                int month = Integer.parseInt(time_sche.get(i).getMonth());
-                int dayy = Integer.parseInt(time_sche.get(i).getDay());
+                int year = time_sche.get(i).getYear();
+                int month =time_sche.get(i).getMonth();
+                int dayy = time_sche.get(i).getDay();
                 Log.e("daydaydaydayyear",String.valueOf(year));
                 Log.e("daydaydaydaymonth",String.valueOf(month));
                 Log.e("daydaydaydayday",String.valueOf(dayy));
@@ -489,7 +555,44 @@ public class ScheduleActivity extends AppCompatActivity {
             }
             adapter.notifyDataSetChanged();
             new ApiSimulator(scheduleArraylist).executeOnExecutor(Executors.newSingleThreadExecutor());
+            adapter = new ScheduleAdapter(ScheduleActivity.this,scheduleArraylist,dialog_master_id,schedule_clear_array);
+            recyclerview.setAdapter(adapter);
             adapter.notifyDataSetChanged();
+           // scheduleArraylist.sort(Comparator.comparing(ScheduleDTO::getYear).thenComparing(ScheduleDTO::getMonth).thenComparing(ScheduleDTO::getDay));
+
+            Comparator<ScheduleDTO> cpmasc = new Comparator<ScheduleDTO>() {
+                int ret=0;
+                @Override
+                public int compare(ScheduleDTO o1, ScheduleDTO o2) {
+
+                    if(o1.getYear()<o2.getYear()){
+                        ret = -1;
+                    }
+                    if(o1.getYear()==o2.getYear()){
+                        if(o1.getMonth()==(o2.getMonth())){
+                            if (o1.getDay()>(o2.getDay())){
+                                ret=1;
+                            }else if (o1.getDay()==(o2.getDay())){
+                                ret=0;
+                            }else if(o1.getDay()<(o2.getDay())){
+                                ret =-1;
+                            }
+                        } else if (o1.getMonth()<(o2.getMonth())){
+                            ret =-1;
+                        }else if(o1.getMonth()>(o2.getMonth())){
+                            ret =1;
+                        }
+                    }
+                    if(o1.getYear()>o2.getYear()){
+                        ret =1;
+                    }
+                    return ret;
+
+
+
+                }
+            };
+            Collections.sort(scheduleArraylist,cpmasc);
 
 
         }
@@ -580,9 +683,9 @@ public class ScheduleActivity extends AppCompatActivity {
 
                 String master_key = item.getString(TAG_master_key);
                 String name = item.getString(TAG_name);
-                String year = item.getString(TAG_year);
-                String month = item.getString(TAG_month);
-                String day = item.getString(TAG_day);
+                int year = item.getInt(TAG_year);
+                int month = item.getInt(TAG_month);
+                int day = item.getInt(TAG_day);
                 String schedule_content = item.getString(TAG_schedule_content);
                 String schedule_content_detail=item.getString(TAG_schedule_content_detail);
                 String time_hour=item.getString(TAG_time_hour);
@@ -609,9 +712,9 @@ public class ScheduleActivity extends AppCompatActivity {
             ScheduleDTO scheduleDTO = new ScheduleDTO();
 
 
-            scheduleDTO.setYear("2030");
-            scheduleDTO.setMonth("11");
-            scheduleDTO.setDay("30");
+            scheduleDTO.setYear(2030);
+            scheduleDTO.setMonth(11);
+            scheduleDTO.setDay(30);
             scheduleArraylist.add(scheduleDTO);
 
             adapter.notifyDataSetChanged();

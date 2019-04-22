@@ -30,6 +30,10 @@ import android.widget.Toast;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
+import com.example.youngseok.myapplication.GroupContent.Schedule.Dialog_master_id_DTO;
+import com.example.youngseok.myapplication.GroupContent.Schedule.MainCalendarAdapter;
+import com.example.youngseok.myapplication.GroupContent.Schedule.ScheduleAdapter;
+import com.example.youngseok.myapplication.GroupContent.Schedule.ScheduleDTO;
 import com.example.youngseok.myapplication.GroupContent.chat.ChattingActivity;
 import com.example.youngseok.myapplication.Service.Add_member_Service;
 import com.example.youngseok.myapplication.calendar.EventDecorator;
@@ -67,6 +71,8 @@ import java.net.URL;
 import java.sql.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Calendar;
@@ -85,7 +91,8 @@ public class MainActivity extends AppCompatActivity {
      ImageButton myset;
 
      private ArrayList<basicGroup> mArrayList;
-     private CustomAdapter mAdapter;
+     private ArrayList<ScheduleDTO> scheduleArray;
+     private MainCalendarAdapter mAdapter;
      private RecyclerView mRecyclerView;
      private int count = 0;
 
@@ -96,6 +103,9 @@ public class MainActivity extends AppCompatActivity {
 
      MaterialCalendarView calendar;
  //    private final OneDayDecorator oneDayDecorator = new OneDayDecorator();
+
+    private ArrayList<Dialog_master_id_DTO> dialog_master_id;
+    private ArrayList<ScheduleDTO> schedule_clear_array;
 
 
 
@@ -164,22 +174,6 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-//        mRecyclerView = findViewById(R.id.main_recycler);
-//        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-//        mArrayList = new ArrayList<>();
-//
-//
-//        mAdapter = new CustomAdapter(this,mArrayList);
-//        mRecyclerView.setAdapter(mAdapter);
-
-
-
-        String keyword = save_my_id;
-
-//        mArrayList.clear();
-//        mAdapter.notifyDataSetChanged();
-//        GetData task = new GetData();
-//        task.execute("http://192.168.43.34/basicrecycle/query.php",keyword);
 
 
         makegroup.setOnClickListener(new View.OnClickListener() {
@@ -333,6 +327,23 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+        mRecyclerView = findViewById(R.id.main_recycler);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mArrayList = new ArrayList<>();
+        scheduleArray = new ArrayList<>();
+
+
+        mAdapter = new MainCalendarAdapter(this,scheduleArray,dialog_master_id,schedule_clear_array);
+        mRecyclerView.setAdapter(mAdapter);
+
+
+
+        String keyword = save_my_id;
+
+//        mArrayList.clear();
+//        mAdapter.notifyDataSetChanged();
+        GetData task = new GetData();
+        task.execute("http://192.168.43.34/basicrecycle/query.php",keyword);
 
 
 
@@ -369,8 +380,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        String[] result = {"2019,04,13","2019,04,18","2019,05,18","2019,06,18","2019,06,22","2019,06,23","2030,11,31"};
-        new ApiSimulator(result).executeOnExecutor(Executors.newSingleThreadExecutor());
+
+        new ApiSimulator(scheduleArray).executeOnExecutor(Executors.newSingleThreadExecutor());
 
 
 
@@ -391,10 +402,10 @@ public class MainActivity extends AppCompatActivity {
 
     private class ApiSimulator extends AsyncTask<Void, Void, List<CalendarDay>> {
 
-        String[] Time_Result;
+        ArrayList<ScheduleDTO> time_sche;
 
-        ApiSimulator(String[] Time_Result){
-            this.Time_Result = Time_Result;
+        ApiSimulator(ArrayList<ScheduleDTO> time_sche){
+            this.time_sche =time_sche;
         }
 
         @Override
@@ -407,18 +418,19 @@ public class MainActivity extends AppCompatActivity {
 
             Calendar calendar = Calendar.getInstance();
             ArrayList<CalendarDay> dates = new ArrayList<>();
+            calendar.clear();
 
             /*특정날짜 달력에 점표시해주는곳*/
             /*월은 0이 1월 년,일은 그대로*/
             //string 문자열인 Time_Result 을 받아와서 ,를 기준으로짜르고 string을 int 로 변환
-            Log.e("daydayday",String.valueOf(Time_Result.length));
-            for(int i = 0 ; i < Time_Result.length; i++){
+            Log.e("daydayday",String.valueOf(time_sche.size()));
+            for(int i = 0 ; i < time_sche.size(); i++){
                 CalendarDay day = CalendarDay.from(calendar);
-                String[] time = Time_Result[i].split(",");
+//                String[] time = Time_Result[i].split(",");
 
-                int year = Integer.parseInt(time[0]);
-                int month = Integer.parseInt(time[1]);
-                int dayy = Integer.parseInt(time[2]);
+                int year = time_sche.get(i).getYear();
+                int month = time_sche.get(i).getMonth();
+                int dayy = time_sche.get(i).getDay();
                 Log.e("daydaydaydayyear",String.valueOf(year));
                 Log.e("daydaydaydaymonth",String.valueOf(month));
                 Log.e("daydaydaydayday",String.valueOf(dayy));
@@ -493,6 +505,13 @@ public class MainActivity extends AppCompatActivity {
                 mJsonString=result;
                 showResult();
             }
+
+            for(int index=0; index<mArrayList.size();index++){
+
+                GetData_schedule task = new GetData_schedule();
+                task.execute("http://192.168.43.34/Schedule/schedule_check.php",mArrayList.get(index).getMaster_key());
+            }
+
 
 
         }
@@ -592,7 +611,6 @@ public class MainActivity extends AppCompatActivity {
                 basicgroup.setMaster_key(master_key);
 
                 mArrayList.add(basicgroup);
-                mAdapter.notifyDataSetChanged();
             }
 
 
@@ -739,7 +757,212 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    private class GetData_schedule extends AsyncTask<String, Void, String>{
+        String errorString = null;
 
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+
+
+            if(result==null){
+
+            }
+            else{
+                mJsonString=result;
+                showResult_schedule();
+            }
+            mAdapter.notifyDataSetChanged();
+            new ApiSimulator(scheduleArray).executeOnExecutor(Executors.newSingleThreadExecutor());
+            mAdapter = new MainCalendarAdapter(MainActivity.this,scheduleArray,dialog_master_id,schedule_clear_array);
+            mRecyclerView.setAdapter(mAdapter);
+            mAdapter.notifyDataSetChanged();
+
+            for(int index=0;index<scheduleArray.size();index++){
+                Log.e("sosod",scheduleArray.get(index).getSchedule_content());
+            }
+
+
+            Comparator<ScheduleDTO> cpmasc = new Comparator<ScheduleDTO>() {
+                int ret=0;
+                @Override
+                public int compare(ScheduleDTO o1, ScheduleDTO o2) {
+
+                    if(o1.getYear()<o2.getYear()){
+                        ret = -1;
+                    }
+                    if(o1.getYear()==o2.getYear()){
+                        if(o1.getMonth()==(o2.getMonth())){
+                            if (o1.getDay()>(o2.getDay())){
+                                ret=1;
+                            }else if (o1.getDay()==(o2.getDay())){
+                                ret=0;
+                            }else if(o1.getDay()<(o2.getDay())){
+                                ret =-1;
+                            }
+                        } else if (o1.getMonth()<(o2.getMonth())){
+                            ret =-1;
+                        }else if(o1.getMonth()>(o2.getMonth())){
+                            ret =1;
+                        }
+                    }
+                    if(o1.getYear()>o2.getYear()){
+                        ret =1;
+                    }
+                    return ret;
+
+
+
+                }
+            };
+            Collections.sort(scheduleArray,cpmasc);
+
+
+
+
+
+
+
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            String serverURL = params[0];
+            String postParameters = "master_key=" + params[1];
+
+
+            try {
+
+                URL url = new URL(serverURL);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+
+
+                httpURLConnection.setReadTimeout(5000);
+                httpURLConnection.setConnectTimeout(5000);
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoInput(true);
+                httpURLConnection.connect();
+
+
+                OutputStream outputStream = httpURLConnection.getOutputStream();
+                outputStream.write(postParameters.getBytes("UTF-8"));
+                outputStream.flush();
+                outputStream.close();
+
+
+                int responseStatusCode = httpURLConnection.getResponseCode();
+
+                InputStream inputStream;
+                if(responseStatusCode == HttpURLConnection.HTTP_OK) {
+                    inputStream = httpURLConnection.getInputStream();
+                }
+                else{
+                    inputStream = httpURLConnection.getErrorStream();
+                }
+
+
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+                StringBuilder sb = new StringBuilder();
+                String line;
+
+                while((line = bufferedReader.readLine()) != null){
+                    sb.append(line);
+                }
+
+                bufferedReader.close();
+
+                return sb.toString().trim();
+
+
+            } catch (Exception e) {
+
+                errorString = e.toString();
+
+                return null;
+            }
+
+        }
+
+    }
+    private void showResult_schedule(){
+
+        String TAG_JSON="youngseok";
+        String TAG_master_key="master_key";
+        String TAG_name = "name";
+        String TAG_year="year";
+        String TAG_month="month";
+        String TAG_day="day";
+        String TAG_schedule_content="schedule_content";
+        String TAG_schedule_content_detail="schedule_content_detail";
+        String TAG_time_hour="time_hour";
+        String TAG_time_minute="time_minute";
+
+
+        try {
+            JSONObject jsonObject = new JSONObject(mJsonString);
+            JSONArray jsonArray = jsonObject.getJSONArray(TAG_JSON);
+
+            for(int i=0;i<jsonArray.length();i++){
+
+                JSONObject item = jsonArray.getJSONObject(i);
+
+                String master_key = item.getString(TAG_master_key);
+                String name = item.getString(TAG_name);
+                int year = item.getInt(TAG_year);
+                int month = item.getInt(TAG_month);
+                int day = item.getInt(TAG_day);
+                String schedule_content = item.getString(TAG_schedule_content);
+                String schedule_content_detail=item.getString(TAG_schedule_content_detail);
+                String time_hour=item.getString(TAG_time_hour);
+                String time_minute=item.getString(TAG_time_minute);
+
+                ScheduleDTO scheduleDTO = new ScheduleDTO();
+
+
+                scheduleDTO.setMaster_key(master_key);
+                scheduleDTO.setName(name);
+                scheduleDTO.setYear(year);
+                scheduleDTO.setMonth(month);
+                scheduleDTO.setDay(day);
+                scheduleDTO.setSchedule_content(schedule_content);
+                scheduleDTO.setSchedule_content_detail(schedule_content_detail);
+                scheduleDTO.setTime_hour(time_hour);
+                scheduleDTO.setTime_minute(time_minute);
+
+
+                scheduleArray.add(scheduleDTO);
+
+
+
+            }
+//            ScheduleDTO scheduleDTO = new ScheduleDTO();
+//
+//
+//            scheduleDTO.setYear("2030");
+//            scheduleDTO.setMonth("11");
+//            scheduleDTO.setDay("30");
+//            scheduleArray.add(scheduleDTO);
+
+            mAdapter.notifyDataSetChanged();
+
+
+
+
+        } catch (JSONException e) {
+
+        }
+        mAdapter.notifyDataSetChanged();
+
+    }
 
 
     @Override
