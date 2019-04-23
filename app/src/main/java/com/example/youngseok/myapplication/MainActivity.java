@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -38,6 +39,7 @@ import com.example.youngseok.myapplication.GroupContent.chat.ChattingActivity;
 import com.example.youngseok.myapplication.Service.Add_member_Service;
 import com.example.youngseok.myapplication.calendar.EventDecorator;
 //import com.example.youngseok.myapplication.calendar.OneDayDecorator;
+import com.example.youngseok.myapplication.calendar.OneDayDecorator;
 import com.example.youngseok.myapplication.calendar.SaturdayDecorator;
 import com.example.youngseok.myapplication.calendar.SundayDecorator;
 import com.example.youngseok.myapplication.invite.InviteActivity;
@@ -333,6 +335,16 @@ public class MainActivity extends AppCompatActivity {
         scheduleArray = new ArrayList<>();
 
 
+        ScheduleDTO scheduleDTO = new ScheduleDTO();
+        scheduleDTO.setYear(2050);
+        scheduleDTO.setMonth(11);
+        scheduleDTO.setDay(30);
+        scheduleArray.add(scheduleDTO);
+
+
+
+
+
         mAdapter = new MainCalendarAdapter(this,scheduleArray,dialog_master_id,schedule_clear_array);
         mRecyclerView.setAdapter(mAdapter);
 
@@ -354,12 +366,12 @@ public class MainActivity extends AppCompatActivity {
         calendar.addDecorators(
                 new SundayDecorator(),
                 new SaturdayDecorator()
-             //   ,oneDayDecorator
+                ,new OneDayDecorator(MainActivity.this)
                  );
         calendar.state().edit()
                 .setFirstDayOfWeek(Calendar.SUNDAY)
                 .setMinimumDate(CalendarDay.from(2017,0,1))
-                .setMaximumDate(CalendarDay.from(2030,11,31))
+                .setMaximumDate(CalendarDay.from(2050,11,31))
                 .setCalendarDisplayMode(CalendarMode.MONTHS)
                    .commit();
 
@@ -387,6 +399,15 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+                mRecyclerView.scrollToPosition(mAdapter.getMove_real());
+                Log.e("sdsd",String.valueOf(mAdapter.getMove_real()));
+            }
+        },1500);
 
 
 
@@ -423,24 +444,25 @@ public class MainActivity extends AppCompatActivity {
             /*특정날짜 달력에 점표시해주는곳*/
             /*월은 0이 1월 년,일은 그대로*/
             //string 문자열인 Time_Result 을 받아와서 ,를 기준으로짜르고 string을 int 로 변환
-            Log.e("daydayday",String.valueOf(time_sche.size()));
+            Log.e("wkfgownskdy",String.valueOf(time_sche.size()));
             for(int i = 0 ; i < time_sche.size(); i++){
                 CalendarDay day = CalendarDay.from(calendar);
 //                String[] time = Time_Result[i].split(",");
+                Log.e("wkfgownskdy",String.valueOf(time_sche.get(i).getDay()));
 
                 int year = time_sche.get(i).getYear();
                 int month = time_sche.get(i).getMonth();
                 int dayy = time_sche.get(i).getDay();
-                Log.e("daydaydaydayyear",String.valueOf(year));
-                Log.e("daydaydaydaymonth",String.valueOf(month));
-                Log.e("daydaydaydayday",String.valueOf(dayy));
+
 
                 dates.add(day);
                 calendar.set(year,month-1,dayy);
+
             }
 
 
 
+            Log.e("wkfgownskdy","agag");
             return dates;
         }
 
@@ -452,7 +474,12 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            calendar.addDecorator(new EventDecorator(Color.GREEN, calendarDays,MainActivity.this));
+            Log.e("wkfgownskdy","flfl");
+
+            calendar.addDecorators(new EventDecorator(Color.GREEN, calendarDays,MainActivity.this));
+
+
+
         }
     }
 
@@ -779,14 +806,18 @@ public class MainActivity extends AppCompatActivity {
                 showResult_schedule();
             }
             mAdapter.notifyDataSetChanged();
+            Log.e("wkfgownskdy",String.valueOf(scheduleArray.size()));
             new ApiSimulator(scheduleArray).executeOnExecutor(Executors.newSingleThreadExecutor());
             mAdapter = new MainCalendarAdapter(MainActivity.this,scheduleArray,dialog_master_id,schedule_clear_array);
             mRecyclerView.setAdapter(mAdapter);
             mAdapter.notifyDataSetChanged();
 
-            for(int index=0;index<scheduleArray.size();index++){
-                Log.e("sosod",scheduleArray.get(index).getSchedule_content());
-            }
+
+
+
+
+
+
 
 
             Comparator<ScheduleDTO> cpmasc = new Comparator<ScheduleDTO>() {

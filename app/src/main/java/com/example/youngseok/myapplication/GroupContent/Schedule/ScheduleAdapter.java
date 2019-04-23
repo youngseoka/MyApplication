@@ -30,6 +30,7 @@ import org.json.JSONObject;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import static com.example.youngseok.myapplication.Initial.InitialActivity.save_my_id;
 
@@ -99,7 +100,12 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.Schedu
     public void onBindViewHolder(@NonNull final ScheduleHolder viewHolder, final int position){
 
 
-
+        if(mSchedule.get(position).getYear()==2050){
+            viewHolder.mView.setVisibility(View.GONE);
+        }
+        else{
+            viewHolder.mView.setVisibility(View.VISIBLE);
+        }
 
         ScheduleDTO data = mSchedule.get(position);
 
@@ -376,6 +382,60 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.Schedu
     }
 
 
+
+    public int getMove_real(){
+        Calendar dateandtime = Calendar.getInstance();
+
+        int year=dateandtime.get(Calendar.YEAR);
+        int month=dateandtime.get(Calendar.MONTH)+1;
+        int day=dateandtime.get(Calendar.DAY_OF_MONTH);
+
+        int k=0;
+
+        for(int index=0; index<mSchedule.size();index++){
+            if(mSchedule.get(index).getYear()==year){
+                if(mSchedule.get(index).getMonth()==month){
+                    if(mSchedule.get(index).getDay()==day){
+                        k=index+1;
+                    }
+                    else{
+
+                    }
+                }
+                else{
+                    //
+                }
+            }
+            else{
+                //
+            }
+        }
+
+        if(k==0){
+            for(int index=0; index<mSchedule.size();index++){
+                if(mSchedule.get(index).getYear()==year){
+                    if(mSchedule.get(index).getMonth()==month){
+                        k=index+1;
+                        break;
+                    }
+                    else{
+                        //
+                    }
+                }
+                else{
+                    //
+                }
+            }
+
+        }
+
+
+
+
+
+
+        return (k==0 ? 0 :k);
+    }
 
     @Override
     public int getItemCount(){

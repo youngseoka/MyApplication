@@ -9,6 +9,7 @@ import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -466,6 +467,16 @@ public class ScheduleActivity extends AppCompatActivity {
 
 
 
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+                recyclerview.scrollToPosition(adapter.getMove_real());
+                Log.e("sdsd",String.valueOf(adapter.getMove_real()));
+            }
+        },1500);
+
+
 
 
     }
@@ -712,7 +723,7 @@ public class ScheduleActivity extends AppCompatActivity {
             ScheduleDTO scheduleDTO = new ScheduleDTO();
 
 
-            scheduleDTO.setYear(2030);
+            scheduleDTO.setYear(2050);
             scheduleDTO.setMonth(11);
             scheduleDTO.setDay(30);
             scheduleArraylist.add(scheduleDTO);

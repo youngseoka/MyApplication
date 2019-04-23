@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -25,6 +26,7 @@ import com.example.youngseok.myapplication.R;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import static com.example.youngseok.myapplication.Initial.InitialActivity.save_my_id;
 
@@ -79,6 +81,8 @@ public class MainCalendarAdapter extends RecyclerView.Adapter<MainCalendarAdapte
         this.mSchedule=mSchedule;
         this.mdialog_id=mdialog_id;
         this.mSchedule_clear=mSchedule_clear;
+
+
     }
 
     @Override
@@ -94,6 +98,20 @@ public class MainCalendarAdapter extends RecyclerView.Adapter<MainCalendarAdapte
     public void onBindViewHolder(@NonNull final MainCalendarHolder viewHolder, final int position){
 
 
+        if(mSchedule.get(position).getYear()==2050){
+            viewHolder.mView.setVisibility(View.GONE);
+        }
+        else{
+            viewHolder.mView.setVisibility(View.VISIBLE);
+        }
+
+        for (int index=0; index<mSchedule.size();index++){
+            Log.e("orderhere",String.valueOf(mSchedule.get(index).getDay()));
+
+        }
+
+
+
 
 
         ScheduleDTO data = mSchedule.get(position);
@@ -102,6 +120,7 @@ public class MainCalendarAdapter extends RecyclerView.Adapter<MainCalendarAdapte
         viewHolder.time_hour_minute.setText(data.getTime_hour()+"시 "+data.getTime_minute()+"분");
         viewHolder.content.setText(data.getSchedule_content());
         viewHolder.content_detail.setText(data.getSchedule_content_detail());
+
 
 
 
@@ -177,11 +196,85 @@ public class MainCalendarAdapter extends RecyclerView.Adapter<MainCalendarAdapte
     }
 
 
+    public int getMove(){
+        int k=0;
+        Log.e("sssssss",String.valueOf(mSchedule.size()));
+        for(int index=0; index<mSchedule.size();index++){
+            if(mSchedule.get(index).getDay()==24){
+                Log.e("ssssss",String.valueOf(index));
+                k=index;
+            }
+            else{}
+        }
+        return (k==0 ? 0 :k);
+    }
 
     @Override
     public int getItemCount(){
         return (null !=mSchedule ? mSchedule.size() :0);
     }
+
+
+
+
+
+    public int getMove_real(){
+        Calendar dateandtime = Calendar.getInstance();
+
+        int year=dateandtime.get(Calendar.YEAR);
+        int month=dateandtime.get(Calendar.MONTH)+1;
+        int day=dateandtime.get(Calendar.DAY_OF_MONTH);
+
+        int k=0;
+
+        for(int index=0; index<mSchedule.size();index++){
+           if(mSchedule.get(index).getYear()==year){
+               if(mSchedule.get(index).getMonth()==month){
+                   if(mSchedule.get(index).getDay()==day){
+                       k=index+1;
+                   }
+                   else{
+
+                   }
+               }
+               else{
+                   //
+               }
+           }
+           else{
+               //
+           }
+        }
+
+       if(k==0){
+           for(int index=0; index<mSchedule.size();index++){
+               if(mSchedule.get(index).getYear()==year){
+                   if(mSchedule.get(index).getMonth()==month){
+                       k=index+1;
+                       break;
+                   }
+                   else{
+                       //
+                   }
+               }
+               else{
+                   //
+               }
+           }
+
+       }
+
+
+
+
+
+
+        return (k==0 ? 0 :k);
+    }
+
+
+
+
 }
 
 
