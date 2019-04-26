@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
+import com.example.youngseok.myapplication.GroupContent.Location.LocationActivity;
 import com.example.youngseok.myapplication.GroupContent.Schedule.ScheduleActivity;
 import com.example.youngseok.myapplication.GroupContent.chat.ChattingActivity;
 import com.example.youngseok.myapplication.GroupContent.member_list.Member_listActivity;
@@ -82,6 +83,7 @@ public class GroupContentActivity extends AppCompatActivity {
 
     Button schedule_check;
 
+    Button location;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,6 +107,8 @@ public class GroupContentActivity extends AppCompatActivity {
 
         member_list=findViewById(R.id.member_list);
         moim_exit=findViewById(R.id.moim_exit);
+
+        location=findViewById(R.id.location_btn);
 
 
         timeline.setOnClickListener(new View.OnClickListener() {
@@ -275,6 +279,15 @@ public class GroupContentActivity extends AppCompatActivity {
         GetData task = new GetData();
         task.execute("http://192.168.43.34/group_content/groupContentRequest.php",master_key);
 
+
+        location.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent go_loca = new Intent(GroupContentActivity.this,LocationActivity.class);
+                startActivity(go_loca);
+                overridePendingTransition(0,0);
+            }
+        });
 
 
     }

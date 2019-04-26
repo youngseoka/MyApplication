@@ -25,6 +25,8 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    implementation 'com.android.support:customtabs:28.0.0'
+
     implementation 'com.android.volley:volley:1.1.0'
     //db와 안드로이드 연결할때 http 라이브러리
     implementation 'com.kakao.sdk:usermgmt:1.15.1'
@@ -79,6 +81,18 @@ dependencies {
 
     implementation 'com.prolificinteractive:material-calendarview:1.4.3'
     //달력
+
+    implementation 'com.google.android.gms:play-services-maps:16.1.0'
+    implementation 'com.google.android.gms:play-services-location:16.0.0'
+    implementation 'com.google.android.libraries.places:places:1.1.0'
+
+    implementation 'com.android.support:support-v4:28.0.0'
+    implementation 'com.android.support:cardview-v7:28.0.0'
+    //구글 지도
+
+    
+
+
 }
 apply plugin: 'com.google.gms.google-services'
 //채팅구현을 위한 이어 베이스

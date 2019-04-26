@@ -202,6 +202,7 @@ public class MainActivity extends AppCompatActivity {
                 .setPermissions(Manifest.permission.RECEIVE_BOOT_COMPLETED)
                 .setPermissions(Manifest.permission.FOREGROUND_SERVICE)
                 .setPermissions(Manifest.permission.ACCESS_FINE_LOCATION)
+                .setPermissions(Manifest.permission.ACCESS_COARSE_LOCATION)
                 .check();
 
 

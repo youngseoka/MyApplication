@@ -126,7 +126,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="일정 확인" />
+                android:text="일정 확인(완)" />
 
             <Button
                 android:id="@+id/button5"
@@ -150,7 +150,7 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/button6"
+                android:id="@+id/location_btn"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
