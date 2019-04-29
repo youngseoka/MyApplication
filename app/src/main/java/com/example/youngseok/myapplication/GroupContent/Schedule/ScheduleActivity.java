@@ -381,7 +381,7 @@ public class ScheduleActivity extends AppCompatActivity {
                         {
                             Log.e("soso","bbb");
                         }
-                        Thread.sleep(1000);
+                        Thread.sleep(2000);
                     }catch (Throwable t){
 
                     }

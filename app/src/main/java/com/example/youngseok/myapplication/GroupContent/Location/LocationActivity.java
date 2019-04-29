@@ -7,6 +7,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -15,6 +18,7 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
@@ -26,9 +30,12 @@ import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.youngseok.myapplication.BasicFrame.basic;
@@ -52,6 +59,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -74,7 +82,8 @@ import java.util.Locale;
 
 import static com.example.youngseok.myapplication.Initial.InitialActivity.save_my_id;
 
-public class LocationActivity extends AppCompatActivity implements OnMapReadyCallback,
+public class LocationActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener,
+
         ActivityCompat.OnRequestPermissionsResultCallback {
 
 
@@ -118,6 +127,13 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
     private Geocoder find_geo;
     private static final int PLACE_PICKER_REQUEST =1;
 
+
+
+    private Animation fab_open, fab_close;
+    private Boolean isFabOpen = false;
+    private FloatingActionButton floatingActionButton,fab_sharing_my_location, fab_show_list, fab_add_location;
+    private ImageView center_pin;
+    private Button marker_insert_btn;
 
 
     @Override
@@ -280,14 +296,128 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
         });
 
 
+
+
+
+        fab_open= AnimationUtils.loadAnimation(getApplicationContext(),R.anim.fab_open);
+        fab_close=AnimationUtils.loadAnimation(getApplicationContext(),R.anim.fab_close);
+
+        floatingActionButton = findViewById(R.id.floatingActionButton);
+        fab_sharing_my_location=findViewById(R.id.fab_sharing_my_location);
+        fab_show_list=findViewById(R.id.fab_show_list);
+        fab_add_location=findViewById(R.id.fab_add_location);
+
+        center_pin=findViewById(R.id.center_pin);
+        marker_insert_btn=findViewById(R.id.marker_insert_btn);
+
+        center_pin.bringToFront();
+
+
+
+
+
+        marker_insert_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                insert_marker();
+            }
+        });
+
+
+
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                anim();
+
+            }
+        });
+
+        fab_add_location.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                anim();
+                open_add();
+            }
+        });
+        fab_sharing_my_location.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                anim();
+            }
+        });
+        fab_show_list.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                anim();
+            }
+        });
+
+
+
     }
 
+    public void anim(){
+
+        if (isFabOpen) {
+            fab_show_list.startAnimation(fab_close);
+            fab_add_location.startAnimation(fab_close);
+            fab_sharing_my_location.startAnimation(fab_close);
+            fab_show_list.setClickable(false);
+            fab_add_location.setClickable(false);
+            fab_sharing_my_location.setClickable(false);
+            isFabOpen = false;
+        } else {
+            fab_show_list.startAnimation(fab_open);
+            fab_add_location.startAnimation(fab_open);
+            fab_sharing_my_location.startAnimation(fab_open);
+            fab_show_list.setClickable(true);
+            fab_add_location.setClickable(true);
+            fab_sharing_my_location.setClickable(true);
+            isFabOpen = true;
+        }
+    }
+
+    public void open_add(){
+        if(center_pin.getVisibility()==View.VISIBLE){
+            center_pin.setVisibility(View.GONE);
+            marker_insert_btn.setVisibility(View.GONE);
+        }
+        else if(center_pin.getVisibility()==View.GONE){
+            center_pin.setVisibility(View.VISIBLE);
+            marker_insert_btn.setVisibility(View.VISIBLE);
+        }
+
+    }
+
+    public void insert_marker(){
 
 
+        LatLng currentLatLng_sub = mGoogleMap.getCameraPosition().target;
+
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.position(currentLatLng_sub);
+        markerOptions.title("aa");
+        markerOptions.snippet("bb");
+
+        BitmapDrawable bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.map_marker);
+        Bitmap b=bitmapdraw.getBitmap();
+        Bitmap smallMarker = Bitmap.createScaledBitmap(b, 75, 120, false);
+
+        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+
+        markerOptions.draggable(true);
+        mGoogleMap.addMarker(markerOptions);
+        ////여기
 
 
+    }
 
-
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        Toast.makeText(this, "Info window clicked",
+                Toast.LENGTH_SHORT).show();
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -361,9 +491,24 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
             @Override
             public void onMapClick(LatLng latLng) {
 
+                MarkerOptions markerOptions = new MarkerOptions();
+                markerOptions.position(latLng);
+                markerOptions.draggable(true);
+
+                BitmapDrawable bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.map_marker);
+                Bitmap b=bitmapdraw.getBitmap();
+                Bitmap smallMarker = Bitmap.createScaledBitmap(b, 75, 120, false);
+
+                markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+                mGoogleMap.addMarker(markerOptions);
+
+
+
                 Log.d( TAG, "onMapClick :");
             }
         });
+
+
 
 
 
@@ -401,10 +546,11 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
 
 
                 //현재 위치에 마커 생성하고 이동
-                if(once_excute==false){
+
                     setCurrentLocation(location, markerTitle, markerSnippet);
 
-                }
+
+
 
 
                 mCurrentLocatiion = location;
@@ -453,12 +599,6 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
     }
 
 
-
-
-
-
-
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -473,6 +613,7 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
             Log.e("googlemap_skdhkfk","1");
             if (mGoogleMap!=null) {
                 mGoogleMap.setMyLocationEnabled(true);
+
                 Log.e("googlemap_skdhkfk","7");
             }
 
@@ -556,7 +697,16 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
         markerOptions.position(currentLatLng);
         markerOptions.title(markerTitle);
         markerOptions.snippet(markerSnippet);
+
+        BitmapDrawable bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.map_marker);
+        Bitmap b=bitmapdraw.getBitmap();
+        Bitmap smallMarker = Bitmap.createScaledBitmap(b, 75, 120, false);
+
+        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+
         markerOptions.draggable(true);
+
+
 
 
 
@@ -564,6 +714,7 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
         if(Tlqkf==true){
 
             currentMarker = mGoogleMap.addMarker(markerOptions);
+            Log.e("asdfasdf","sdf");
 
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(currentLatLng);
             if(once_excute==false){
@@ -583,7 +734,7 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
 
         Log.e("googlemap_skdhkfk","11");
         //디폴트 위치, Seoul
-        LatLng DEFAULT_LOCATION = new LatLng(37.56, 126.97);
+        LatLng DEFAULT_LOCATION = new LatLng(37.530279, 126.7203273);
         String markerTitle = "위치정보 가져올 수 없음";
         String markerSnippet = "위치 퍼미션과 GPS 활성 요부 확인하세요";
 
@@ -595,7 +746,11 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
         markerOptions.title(markerTitle);
         markerOptions.snippet(markerSnippet);
         markerOptions.draggable(true);
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+        BitmapDrawable bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.map_marker);
+        Bitmap b=bitmapdraw.getBitmap();
+        Bitmap smallMarker = Bitmap.createScaledBitmap(b, 75, 120, false);
+
+        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
         currentMarker = mGoogleMap.addMarker(markerOptions);
 
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(DEFAULT_LOCATION, 15);

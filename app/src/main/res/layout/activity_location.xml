@@ -19,7 +19,7 @@
         android:theme="?attr/actionBarTheme"
         app:title="다들 어디있어요?" />
 
-    <LinearLayout
+    <android.support.constraint.ConstraintLayout
         android:id="@+id/map_linear"
 
         android:layout_width="match_parent"
@@ -27,27 +27,125 @@
         android:layout_weight="7"
         android:orientation="vertical">
 
+        <Button
+            android:id="@+id/marker_insert_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="위치 설정하기"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/center_pin"
+            app:layout_constraintEnd_toEndOf="@+id/map"
+            app:layout_constraintHorizontal_bias="0.511"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
+
+        <ImageView
+            android:id="@+id/center_pin"
+            android:layout_width="25dp"
+            android:layout_height="40dp"
+            android:layout_centerInParent="true"
+
+            android:background="@drawable/map_marker"
+            android:contentDescription="@string/app_name"
+
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.47" />
+
 
         <LinearLayout
+            android:id="@+id/linearLayout2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            app:layout_constraintTop_toTopOf="parent">
 
             <fragment
                 android:id="@+id/autocomplete_fragment"
+                android:name="com.google.android.libraries.places.widget.AutocompleteFragment"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:name=
-                    "com.google.android.libraries.places.widget.AutocompleteFragment"
-                />
+                android:layout_height="wrap_content" />
         </LinearLayout>
 
         <fragment
             android:id="@+id/map"
             class="com.google.android.gms.maps.MapFragment"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </LinearLayout>
+            android:layout_height="match_parent"
+            tools:layout_editor_absoluteX="29dp"
+            tools:layout_editor_absoluteY="0dp" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab_add_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/colorGray"
+            android:clickable="true"
+            android:elevation="0dp"
+            android:visibility="invisible"
+            app:borderWidth="@dimen/places_autocomplete_toolbar_inset_end"
+            app:layout_constraintBottom_toBottomOf="@+id/map"
+            app:layout_constraintEnd_toEndOf="@+id/map"
+            app:layout_constraintHorizontal_bias="0.904"
+            app:layout_constraintStart_toStartOf="@+id/map"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.56"
+            app:srcCompat="@android:drawable/ic_input_add" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab_show_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/colorGray"
+            android:clickable="true"
+            android:elevation="0dp"
+            android:visibility="invisible"
+            app:borderWidth="@dimen/places_autocomplete_toolbar_inset_end"
+            app:layout_constraintBottom_toBottomOf="@+id/map"
+            app:layout_constraintEnd_toEndOf="@+id/map"
+            app:layout_constraintHorizontal_bias="0.904"
+            app:layout_constraintStart_toStartOf="@+id/map"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.667"
+            app:srcCompat="@android:drawable/ic_menu_sort_by_size" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab_sharing_my_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/colorGray"
+            android:clickable="true"
+            android:elevation="0dp"
+            android:visibility="invisible"
+            app:borderWidth="@dimen/places_autocomplete_toolbar_inset_end"
+            app:layout_constraintBottom_toBottomOf="@+id/map"
+            app:layout_constraintEnd_toEndOf="@+id/map"
+            app:layout_constraintHorizontal_bias="0.904"
+            app:layout_constraintStart_toStartOf="@+id/map"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.773"
+            app:srcCompat="@android:drawable/ic_menu_myplaces" />
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/floatingActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/colorGray"
+            android:clickable="true"
+            android:elevation="0dp"
+            app:borderWidth="@dimen/places_autocomplete_toolbar_inset_end"
+            app:layout_constraintBottom_toBottomOf="@+id/map"
+            app:layout_constraintEnd_toEndOf="@+id/map"
+            app:layout_constraintHorizontal_bias="0.904"
+            app:layout_constraintStart_toStartOf="@+id/map"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.929"
+            app:srcCompat="@android:drawable/ic_menu_myplaces" />
+    </android.support.constraint.ConstraintLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
