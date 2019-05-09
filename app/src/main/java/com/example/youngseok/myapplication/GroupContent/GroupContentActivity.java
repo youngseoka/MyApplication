@@ -284,6 +284,7 @@ public class GroupContentActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent go_loca = new Intent(GroupContentActivity.this,LocationActivity.class);
+                go_loca.putExtra("master_key",master_key);
                 startActivity(go_loca);
                 overridePendingTransition(0,0);
             }

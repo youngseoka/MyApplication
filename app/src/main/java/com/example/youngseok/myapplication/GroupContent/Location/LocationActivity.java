@@ -1,23 +1,33 @@
 package com.example.youngseok.myapplication.GroupContent.Location;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -27,8 +37,16 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.text.TextUtils;
+import android.text.method.Touch;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.DragEvent;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -36,8 +54,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.toolbox.Volley;
 import com.example.youngseok.myapplication.BasicFrame.basic;
 import com.example.youngseok.myapplication.MainActivity;
 import com.example.youngseok.myapplication.MygroupActivity;
@@ -72,18 +95,32 @@ import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteFragment;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
+import com.google.maps.android.clustering.ClusterManager;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+
 import static com.example.youngseok.myapplication.Initial.InitialActivity.save_my_id;
 
 public class LocationActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener,
-
+        GoogleMap.OnMarkerClickListener,
         ActivityCompat.OnRequestPermissionsResultCallback {
 
 
@@ -135,6 +172,25 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
     private ImageView center_pin;
     private Button marker_insert_btn;
 
+    private FloatingActionButton delete_fb,show_more_fb;
+    private Boolean isFabOpen_2=false;
+    private Animation fab_close_two,fab_open_two;
+
+    private FloatingActionButton fab_sharing_my_location_on;
+    private Animation fab_open_on,fab_close_on;
+    private Boolean location_on =false;
+
+
+    private String mJsonString;
+
+    private ArrayList<my_infoDTO> my_info_array;
+    private String master_key;
+
+    private ArrayList<sharing_locationDTO> sharing_location_array;
+    private ArrayList<markerDTO> marker_array;
+
+    TextView tv_marker;
+    View marker_root_view;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -220,7 +276,7 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
 
 
 
-        mLayout = findViewById(R.id.layout_main);
+        mLayout = findViewById(R.id.map_linear);
 
 
         Log.d(TAG, "onCreate");
@@ -309,8 +365,16 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
 
         center_pin=findViewById(R.id.center_pin);
         marker_insert_btn=findViewById(R.id.marker_insert_btn);
-
         center_pin.bringToFront();
+
+        delete_fb=findViewById(R.id.delete_fb);
+        show_more_fb=findViewById(R.id.show_more_fb);
+        fab_open_two= AnimationUtils.loadAnimation(getApplicationContext(),R.anim.fab_open_two);
+        fab_close_two=AnimationUtils.loadAnimation(getApplicationContext(),R.anim.fab_close_two);
+
+        fab_sharing_my_location_on=findViewById(R.id.fab_sharing_my_location_on);
+        fab_open_on= AnimationUtils.loadAnimation(getApplicationContext(),R.anim.fab_open_on);
+        fab_close_on=AnimationUtils.loadAnimation(getApplicationContext(),R.anim.fab_close_on);
 
 
 
@@ -344,6 +408,7 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
             @Override
             public void onClick(View v) {
                 anim();
+                sharing_my_location();
             }
         });
         fab_show_list.setOnClickListener(new View.OnClickListener() {
@@ -352,10 +417,101 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
                 anim();
             }
         });
+        fab_sharing_my_location_on.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(LocationActivity.this);
+                builder.setMessage("내 위치를 공유를 종료합니다");
+                builder.setPositiveButton("예",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                Toast.makeText(getApplicationContext(),"하위^^&.",Toast.LENGTH_LONG).show();
+
+                                fab_sharing_my_location_on.startAnimation(fab_close_on);
+                                fab_sharing_my_location_on.setClickable(false);
+                                location_on=false;
+
+                            }
+                        });
+                builder.setNegativeButton("아니오",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                Toast.makeText(getApplicationContext(),"바위^^&.",Toast.LENGTH_LONG).show();
+                            }
+                        });
+                builder.show();
+            }
+        });
+
+
+
+
+        my_info_array =new ArrayList<>();
+        sharing_location_array = new ArrayList<>();
+
+        GetData task = new GetData();
+        task.execute("http://192.168.43.34/group_content/geo/take_my_info.php",save_my_id);
+        Intent intent = getIntent();
+        master_key=intent.getStringExtra("master_key");
+
+
+
+        marker_root_view = LayoutInflater.from(this).inflate(R.layout.marker_custom, null);
+        tv_marker = (TextView) marker_root_view.findViewById(R.id.tv_marker);
+
+    }
+
+
+    public void sharing_my_location(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(LocationActivity.this);
+
+        if(location_on==false){
+            builder.setMessage("내 위치를 공유합니다"+"\n"+"10초마다 위치정보가 업데이트 됩니다.");
+            builder.setPositiveButton("예",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            Toast.makeText(getApplicationContext(),"하위^^&.",Toast.LENGTH_LONG).show();
+
+                            fab_sharing_my_location_on.startAnimation(fab_open_on);
+                            fab_sharing_my_location_on.setClickable(true);
+                            location_on=true;
+
+                        }
+                    });
+            builder.setNegativeButton("아니오",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            Toast.makeText(getApplicationContext(),"바위^^&.",Toast.LENGTH_LONG).show();
+                        }
+                    });
+            builder.show();
+        }
+        else if (location_on==true){
+            builder.setMessage("내 위치를 공유를 종료합니다");
+            builder.setPositiveButton("예",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            Toast.makeText(getApplicationContext(),"하위^^&.",Toast.LENGTH_LONG).show();
+
+                            fab_sharing_my_location_on.startAnimation(fab_close_on);
+                            fab_sharing_my_location_on.setClickable(false);
+                            location_on=false;
+
+                        }
+                    });
+            builder.setNegativeButton("아니오",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            Toast.makeText(getApplicationContext(),"바위^^&.",Toast.LENGTH_LONG).show();
+                        }
+                    });
+            builder.show();
+        }
 
 
 
     }
+
 
     public void anim(){
 
@@ -393,24 +549,211 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
     public void insert_marker(){
 
 
-        LatLng currentLatLng_sub = mGoogleMap.getCameraPosition().target;
-
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(currentLatLng_sub);
-        markerOptions.title("aa");
-        markerOptions.snippet("bb");
-
-        BitmapDrawable bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.map_marker);
-        Bitmap b=bitmapdraw.getBitmap();
-        Bitmap smallMarker = Bitmap.createScaledBitmap(b, 75, 120, false);
-
-        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
-
-        markerOptions.draggable(true);
-        mGoogleMap.addMarker(markerOptions);
-        ////여기
 
 
+
+         AlertDialog.Builder builder = new AlertDialog.Builder(LocationActivity.this);
+
+
+        View view = LayoutInflater.from(LocationActivity.this).inflate(R.layout.insert_marker_dialog,null,false);
+
+        builder.setView(view);
+
+       final AlertDialog alertdialog = builder.create();
+        alertdialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+
+
+
+
+        final EditText insert_title =view.findViewById(R.id.insert_title);
+        final EditText insert_content=view.findViewById(R.id.insert_content);
+        Button insert_btn=view.findViewById(R.id.insert_btn);
+
+        insert_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LatLng currentLatLng_sub = mGoogleMap.getCameraPosition().target;
+
+                MarkerOptions markerOptions = new MarkerOptions();
+                markerOptions.position(currentLatLng_sub);
+                markerOptions.title(insert_title.getText().toString());
+                markerOptions.snippet(insert_content.getText().toString());
+
+                BitmapDrawable bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.map_marker);
+                Bitmap b=bitmapdraw.getBitmap();
+                Bitmap smallMarker = Bitmap.createScaledBitmap(b, 75, 120, false);
+
+                markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+
+                markerOptions.draggable(true);
+
+
+
+
+                mGoogleMap.addMarker(markerOptions);
+
+                Response.Listener<String> responseListener = new Response.Listener<String>(){
+
+                    @Override
+                    public void onResponse(String response){
+                        try{
+
+
+                            JSONObject jsonResponse = new JSONObject(response);
+                            boolean success =jsonResponse.getBoolean("success");
+                            if(success){
+                            }
+                            else{
+                            }
+                        }
+                        catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                };
+                //volley 라이브러리 이용해서 실제 서버와 통신
+
+                marker_insert markerinsert = new marker_insert(master_key,insert_title.getText().toString(),insert_content.getText().toString(),String.valueOf(currentLatLng_sub.latitude),String.valueOf(currentLatLng_sub.longitude),responseListener);
+                RequestQueue queue = Volley.newRequestQueue(LocationActivity.this);
+                queue.add(markerinsert);
+
+                open_add();
+
+                alertdialog.dismiss();
+            }
+        });
+
+        alertdialog.show();
+
+
+
+
+    }
+
+    @Override
+    public boolean onMarkerClick(final Marker marker){
+        Log.e("nonono5","5dskflwe");
+        CameraUpdate move_click_position = CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 15);
+        mGoogleMap.animateCamera(move_click_position,1000,null);
+
+
+        if (isFabOpen_2==false) {
+            delete_fb.startAnimation(fab_open_two);
+            show_more_fb.startAnimation(fab_open_two);
+            delete_fb.setClickable(true);
+            show_more_fb.setClickable(true);
+            isFabOpen_2 = true;
+        } else if (isFabOpen_2==true) {
+
+            delete_fb.startAnimation(fab_close_two);
+            show_more_fb.startAnimation(fab_close_two);
+            delete_fb.setClickable(false);
+            show_more_fb.setClickable(false);
+            isFabOpen_2 = false;
+
+            delete_fb.startAnimation(fab_open_two);
+            show_more_fb.startAnimation(fab_open_two);
+            delete_fb.setClickable(true);
+            show_more_fb.setClickable(true);
+            isFabOpen_2 = true;
+        }
+
+
+        delete_fb.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                delete_fb.startAnimation(fab_close_two);
+                show_more_fb.startAnimation(fab_close_two);
+                delete_fb.setClickable(false);
+                show_more_fb.setClickable(false);
+                isFabOpen_2 = false;
+
+
+                Response.Listener<String> responseListener = new Response.Listener<String>(){
+
+                    @Override
+                    public void onResponse(String response){
+                        try{
+
+
+                            JSONObject jsonResponse = new JSONObject(response);
+                            boolean success =jsonResponse.getBoolean("success");
+                            if(success){
+                            }
+                            else{
+                            }
+                        }
+                        catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                };
+                //volley 라이브러리 이용해서 실제 서버와 통신
+
+                marker_delete_request markerdelete = new marker_delete_request(master_key,marker.getTitle(),marker.getSnippet(),String.valueOf(marker.getPosition().latitude),String.valueOf(marker.getPosition().longitude),responseListener);
+                RequestQueue queue = Volley.newRequestQueue(LocationActivity.this);
+                queue.add(markerdelete);
+
+
+                marker.remove();
+
+
+            }
+        });
+
+        show_more_fb.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                delete_fb.startAnimation(fab_close_two);
+                show_more_fb.startAnimation(fab_close_two);
+                delete_fb.setClickable(false);
+                show_more_fb.setClickable(false);
+                isFabOpen_2 = false;
+
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(LocationActivity.this);
+
+
+                View view = LayoutInflater.from(LocationActivity.this).inflate(R.layout.show_detail_dialog,null,false);
+
+                builder.setView(view);
+
+                final AlertDialog alertdialog = builder.create();
+                alertdialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+
+
+
+
+                final TextView insert_title =view.findViewById(R.id.insert_title);
+                final TextView insert_content=view.findViewById(R.id.insert_content);
+                Button insert_btn=view.findViewById(R.id.insert_btn);
+
+                insert_title.setText(marker.getTitle());
+                insert_content.setText(marker.getSnippet());
+
+                insert_btn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        alertdialog.dismiss();
+                    }
+                });
+                alertdialog.show();
+
+                //textsize랑 다 바꿔야댕댕댕댕
+            }
+        });
+
+
+
+
+
+
+
+
+
+
+        return true;
     }
 
     @Override
@@ -421,12 +764,15 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+
         Log.d(TAG, "onMapReady :");
 
         Tlqkf=true;
 
         mGoogleMap = googleMap;
         find_geo=new Geocoder(this);
+
+        mGoogleMap.setOnMarkerClickListener(this);
 
 
         //런타임 퍼미션 요청 대화상자나 GPS 활성 요청 대화상자 보이기전에
@@ -487,24 +833,115 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
         mGoogleMap.getUiSettings().setMyLocationButtonEnabled(true);
         mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(15));
         mGoogleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-
             @Override
             public void onMapClick(LatLng latLng) {
+                if(isFabOpen_2==true){
+                    delete_fb.startAnimation(fab_close_two);
+                    show_more_fb.startAnimation(fab_close_two);
+                    delete_fb.setClickable(false);
+                    show_more_fb.setClickable(false);
+                    isFabOpen_2 = false;
+                }
 
-                MarkerOptions markerOptions = new MarkerOptions();
-                markerOptions.position(latLng);
-                markerOptions.draggable(true);
-
-                BitmapDrawable bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.map_marker);
-                Bitmap b=bitmapdraw.getBitmap();
-                Bitmap smallMarker = Bitmap.createScaledBitmap(b, 75, 120, false);
-
-                markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
-                mGoogleMap.addMarker(markerOptions);
-
+            }
+        });
 
 
-                Log.d( TAG, "onMapClick :");
+
+        mGoogleMap.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
+            @Override
+            public void onCameraMoveStarted(int i) {
+                if(isFabOpen_2==true){
+                    delete_fb.startAnimation(fab_close_two);
+                    show_more_fb.startAnimation(fab_close_two);
+                    delete_fb.setClickable(false);
+                    show_more_fb.setClickable(false);
+                    isFabOpen_2 = false;
+                }
+            }
+        });
+
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true){
+                    try {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mGoogleMap.clear();
+                                sharing_location_array = new ArrayList<>();
+                                GetData_sharing_location task = new GetData_sharing_location();
+                                task.execute("http://192.168.43.34/group_content/geo/show_sharing_location.php",master_key);
+                                marker_array=new ArrayList<>();
+                                GetData_marker task_marker = new GetData_marker();
+                                task_marker.execute("http://192.168.43.34/group_content/geo/show_marker.php",master_key);
+                                Log.e("wjsuranjajrwl","ddd");
+
+                            }
+                        });Thread.sleep(10000);
+                    }catch (InterruptedException e){
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
+
+
+
+
+        mGoogleMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+            @Override
+            public void onMarkerDragStart(Marker marker) {
+                Log.e("nonono","1");
+
+
+                Log.e("thdso",marker.getTitle());
+
+
+            }
+
+            @Override
+            public void onMarkerDrag(Marker marker) {
+                Log.e("nonono","2");
+
+            }
+
+            @Override
+            public void onMarkerDragEnd(Marker marker) {
+                Log.e("nonono","3");
+
+                Response.Listener<String> responseListener = new Response.Listener<String>(){
+
+                    @Override
+                    public void onResponse(String response){
+                        try{
+
+
+                            JSONObject jsonResponse = new JSONObject(response);
+                            boolean success =jsonResponse.getBoolean("success");
+                            if(success){
+                            }
+                            else{
+                            }
+                        }
+                        catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                };
+                //volley 라이브러리 이용해서 실제 서버와 통신
+
+
+                drag_end_request dragendrequest = new drag_end_request(master_key,marker.getTitle(),marker.getSnippet(),String.valueOf(marker.getPosition().latitude),String.valueOf(marker.getPosition().longitude),responseListener);
+                RequestQueue queue = Volley.newRequestQueue(LocationActivity.this);
+                queue.add(dragendrequest);
+
+
+
+
+
             }
         });
 
@@ -688,10 +1125,12 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
     public void setCurrentLocation(Location location, String markerTitle, String markerSnippet) {
         Log.e("googlemap_skdhkfk","10");
 
+
+
+
+        final LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+
         if (currentMarker != null) currentMarker.remove();
-
-
-        LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
 
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(currentLatLng);
@@ -704,7 +1143,9 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
 
         markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
 
+
         markerOptions.draggable(true);
+
 
 
 
@@ -713,7 +1154,42 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
 
         if(Tlqkf==true){
 
-            currentMarker = mGoogleMap.addMarker(markerOptions);
+            if(location_on==true){
+            //    currentMarker = mGoogleMap.addMarker(markerOptions);
+
+                Response.Listener<String> responseListener = new Response.Listener<String>(){
+
+                    @Override
+                    public void onResponse(String response){
+                        try{
+
+
+                            JSONObject jsonResponse = new JSONObject(response);
+                            boolean success =jsonResponse.getBoolean("success");
+                            if(success){
+                            }
+                            else{
+                            }
+                        }
+                        catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                };
+                //volley 라이브러리 이용해서 실제 서버와 통신
+                SimpleDateFormat format3 = new SimpleDateFormat ( "yyyy년 MM월 dd일 HH시 mm분");
+                Date time2 = new Date();
+                String time3 = format3.format(time2);
+                my_infoRequest myinforequest = new my_infoRequest(master_key,my_info_array.get(0).getName(),time3,String.valueOf(location.getLatitude()),String.valueOf(location.getLongitude()),responseListener);
+                RequestQueue queue = Volley.newRequestQueue(LocationActivity.this);
+                queue.add(myinforequest);
+                Log.e("asdf","asdf");
+
+
+
+            }
+            else if (location_on==false){}
+
             Log.e("asdfasdf","sdf");
 
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(currentLatLng);
@@ -741,17 +1217,17 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
 
         if (currentMarker != null) currentMarker.remove();
 
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(DEFAULT_LOCATION);
-        markerOptions.title(markerTitle);
-        markerOptions.snippet(markerSnippet);
-        markerOptions.draggable(true);
-        BitmapDrawable bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.map_marker);
-        Bitmap b=bitmapdraw.getBitmap();
-        Bitmap smallMarker = Bitmap.createScaledBitmap(b, 75, 120, false);
-
-        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
-        currentMarker = mGoogleMap.addMarker(markerOptions);
+//        MarkerOptions markerOptions = new MarkerOptions();
+//        markerOptions.position(DEFAULT_LOCATION);
+//        markerOptions.title(markerTitle);
+//        markerOptions.snippet(markerSnippet);
+//        markerOptions.draggable(true);
+//        BitmapDrawable bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.map_marker);
+//        Bitmap b=bitmapdraw.getBitmap();
+//        Bitmap smallMarker = Bitmap.createScaledBitmap(b, 75, 120, false);
+//
+//        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+//        currentMarker = mGoogleMap.addMarker(markerOptions);
 
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(DEFAULT_LOCATION, 15);
         mGoogleMap.moveCamera(cameraUpdate);
@@ -923,6 +1399,534 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
 
 
     }
+
+
+    private class GetData extends AsyncTask<String, Void, String> {
+        ProgressDialog progressDialog;
+        String errorString = null;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            progressDialog = ProgressDialog.show(LocationActivity.this,
+                    "Please Wait", null, true, true);
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+
+            progressDialog.dismiss();
+
+            if(result==null){
+
+            }
+            else{
+                mJsonString=result;
+                showResult();
+
+            }
+
+
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            String serverURL = params[0];
+            String postParameters = "id=" + params[1];
+
+
+            try {
+
+                URL url = new URL(serverURL);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+
+
+                httpURLConnection.setReadTimeout(5000);
+                httpURLConnection.setConnectTimeout(5000);
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoInput(true);
+                httpURLConnection.connect();
+
+
+                OutputStream outputStream = httpURLConnection.getOutputStream();
+                outputStream.write(postParameters.getBytes("UTF-8"));
+                outputStream.flush();
+                outputStream.close();
+
+
+                int responseStatusCode = httpURLConnection.getResponseCode();
+
+                InputStream inputStream;
+                if(responseStatusCode == HttpURLConnection.HTTP_OK) {
+                    inputStream = httpURLConnection.getInputStream();
+                }
+                else{
+                    inputStream = httpURLConnection.getErrorStream();
+                }
+
+
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+                StringBuilder sb = new StringBuilder();
+                String line;
+
+                while((line = bufferedReader.readLine()) != null){
+                    sb.append(line);
+                }
+
+                bufferedReader.close();
+
+                return sb.toString().trim();
+
+
+            } catch (Exception e) {
+
+                errorString = e.toString();
+
+                return null;
+            }
+
+        }
+
+    }
+    private void showResult(){
+
+        String TAG_JSON="youngseok";
+        String TAG_name = "name";
+        String TAG_nickname ="nickname";
+
+
+        try {
+            JSONObject jsonObject = new JSONObject(mJsonString);
+            JSONArray jsonArray = jsonObject.getJSONArray(TAG_JSON);
+
+            for(int i=0;i<jsonArray.length();i++){
+
+                JSONObject item = jsonArray.getJSONObject(i);
+
+
+                String name = item.getString(TAG_name);
+                String nickname = item.getString(TAG_nickname);
+
+
+                my_infoDTO myinfodto = new my_infoDTO();
+
+
+                myinfodto.setName(name);
+                myinfodto.setNickname(nickname);
+
+                my_info_array.add(myinfodto);
+            }
+
+
+
+
+
+
+
+
+        } catch (JSONException e) {
+
+        }
+
+
+    }
+
+    private class GetData_sharing_location extends AsyncTask<String, Void, String> {
+        ProgressDialog progressDialog;
+        String errorString = null;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+//            progressDialog = ProgressDialog.show(LocationActivity.this,
+     //               "Please Wait", null, true, true);
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+
+//            progressDialog.dismiss();
+
+            if(result==null){
+
+            }
+            else{
+                mJsonString=result;
+                showResult_sharing_location();
+
+            }
+
+            for(int index=0; index<sharing_location_array.size();index++){
+                LatLng currentLatLng = new LatLng(Double.valueOf(sharing_location_array.get(index).getLocation_lat()),Double.valueOf(sharing_location_array.get(index).getLocation_lng()));
+                MarkerOptions markerOptions = new MarkerOptions();
+
+                if (currentMarker != null) currentMarker.remove();
+
+
+                String formatted = sharing_location_array.get(index).getName()+"\n"+sharing_location_array.get(index).getTime();
+                if(TextUtils.isEmpty(formatted)){
+                    Log.e("bbbbtlqkf","hi");
+                }
+                else{
+                    tv_marker.setText(formatted);
+                }
+
+                markerOptions.position(currentLatLng);
+                markerOptions.title(sharing_location_array.get(index).getName());
+                markerOptions.snippet(sharing_location_array.get(index).getTime());
+
+
+                markerOptions.icon(BitmapDescriptorFactory.fromBitmap(createDrawableFromView(LocationActivity.this, marker_root_view)));
+
+
+                mGoogleMap.addMarker(markerOptions);
+
+                Log.e("howhowhow","dddd");
+
+               // LatLng position = new LatLng(markerItem.getLat(), markerItem.getLng());
+               // int price = markerItem.getPrice();
+              //  String formatted = NumberFormat.getCurrencyInstance().format((price));
+
+
+           //     MarkerOptions markerOptions = new MarkerOptions();
+         //       markerOptions.title(Integer.toString(price));
+              //  markerOptions.position(position);
+
+           //     mGoogleMap.addMarker(markerOptions);
+
+            }
+
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            String serverURL = params[0];
+            String postParameters = "master_key=" + params[1];
+
+
+            try {
+
+                URL url = new URL(serverURL);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+
+
+                httpURLConnection.setReadTimeout(5000);
+                httpURLConnection.setConnectTimeout(5000);
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoInput(true);
+                httpURLConnection.connect();
+
+
+                OutputStream outputStream = httpURLConnection.getOutputStream();
+                outputStream.write(postParameters.getBytes("UTF-8"));
+                outputStream.flush();
+                outputStream.close();
+
+
+                int responseStatusCode = httpURLConnection.getResponseCode();
+
+                InputStream inputStream;
+                if(responseStatusCode == HttpURLConnection.HTTP_OK) {
+                    inputStream = httpURLConnection.getInputStream();
+                }
+                else{
+                    inputStream = httpURLConnection.getErrorStream();
+                }
+
+
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+                StringBuilder sb = new StringBuilder();
+                String line;
+
+                while((line = bufferedReader.readLine()) != null){
+                    sb.append(line);
+                }
+
+                bufferedReader.close();
+
+                return sb.toString().trim();
+
+
+            } catch (Exception e) {
+
+                errorString = e.toString();
+
+                return null;
+            }
+
+        }
+
+    }
+    private void showResult_sharing_location(){
+
+        String TAG_JSON="youngseok";
+        String TAG_name = "name";
+        String TAG_time="time";
+        String TAG_location_lat ="location_lat";
+        String TAG_location_lng = "location_lng";
+
+
+        try {
+            JSONObject jsonObject = new JSONObject(mJsonString);
+            JSONArray jsonArray = jsonObject.getJSONArray(TAG_JSON);
+
+            for(int i=0;i<jsonArray.length();i++){
+
+                JSONObject item = jsonArray.getJSONObject(i);
+
+
+                String name = item.getString(TAG_name);
+                String time = item.getString(TAG_time);
+                String location_lat = item.getString(TAG_location_lat);
+                String location_lng = item.getString(TAG_location_lng);
+
+
+                sharing_locationDTO sharinglocationdto = new sharing_locationDTO();
+
+
+                sharinglocationdto.setName(name);
+                sharinglocationdto.setTime(time);
+                sharinglocationdto.setLocation_lat(location_lat);
+                sharinglocationdto.setLocation_lng(location_lng);
+
+                sharing_location_array.add(sharinglocationdto);
+
+
+
+
+
+
+
+            }
+
+
+
+
+
+
+
+
+        } catch (JSONException e) {
+
+        }
+
+
+    }
+
+    private class GetData_marker extends AsyncTask<String, Void, String> {
+        ProgressDialog progressDialog;
+        String errorString = null;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+//            progressDialog = ProgressDialog.show(LocationActivity.this,
+            //               "Please Wait", null, true, true);
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+
+//            progressDialog.dismiss();
+
+            if(result==null){
+
+            }
+            else{
+                mJsonString=result;
+                showResult_marker();
+
+            }
+
+            for(int index=0; index<marker_array.size();index++){
+                LatLng currentLatLng = new LatLng(Double.valueOf(marker_array.get(index).getLocation_lat()),Double.valueOf(marker_array.get(index).getLocation_lng()));
+                MarkerOptions markerOptions = new MarkerOptions();
+
+                if (currentMarker != null) currentMarker.remove();
+                markerOptions.position(currentLatLng);
+                markerOptions.title(marker_array.get(index).getTitle());
+                markerOptions.snippet(marker_array.get(index).getSnip());
+
+
+
+                BitmapDrawable bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.map_marker);
+                Bitmap b=bitmapdraw.getBitmap();
+                Bitmap smallMarker = Bitmap.createScaledBitmap(b, 75, 120, false);
+
+                markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+                markerOptions.draggable(true);
+
+                mGoogleMap.addMarker(markerOptions);
+
+            }
+
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            String serverURL = params[0];
+            String postParameters = "master_key=" + params[1];
+
+
+            try {
+
+                URL url = new URL(serverURL);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+
+
+                httpURLConnection.setReadTimeout(5000);
+                httpURLConnection.setConnectTimeout(5000);
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoInput(true);
+                httpURLConnection.connect();
+
+
+                OutputStream outputStream = httpURLConnection.getOutputStream();
+                outputStream.write(postParameters.getBytes("UTF-8"));
+                outputStream.flush();
+                outputStream.close();
+
+
+                int responseStatusCode = httpURLConnection.getResponseCode();
+
+                InputStream inputStream;
+                if(responseStatusCode == HttpURLConnection.HTTP_OK) {
+                    inputStream = httpURLConnection.getInputStream();
+                }
+                else{
+                    inputStream = httpURLConnection.getErrorStream();
+                }
+
+
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+                StringBuilder sb = new StringBuilder();
+                String line;
+
+                while((line = bufferedReader.readLine()) != null){
+                    sb.append(line);
+                }
+
+                bufferedReader.close();
+
+                return sb.toString().trim();
+
+
+            } catch (Exception e) {
+
+                errorString = e.toString();
+
+                return null;
+            }
+
+        }
+
+    }
+    private void showResult_marker(){
+
+        String TAG_JSON="youngseok";
+        String TAG_title = "title";
+        String TAG_snip="snip";
+        String TAG_location_lat ="location_lat";
+        String TAG_location_lng = "location_lng";
+
+
+        try {
+            JSONObject jsonObject = new JSONObject(mJsonString);
+            JSONArray jsonArray = jsonObject.getJSONArray(TAG_JSON);
+
+            for(int i=0;i<jsonArray.length();i++){
+
+                JSONObject item = jsonArray.getJSONObject(i);
+
+
+                String title = item.getString(TAG_title);
+                String snip = item.getString(TAG_snip);
+                String location_lat = item.getString(TAG_location_lat);
+                String location_lng = item.getString(TAG_location_lng);
+
+
+
+                markerDTO markerdto = new markerDTO();
+
+
+                markerdto.setTitle(title);
+                markerdto.setSnip(snip);
+                markerdto.setLocation_lat(location_lat);
+                markerdto.setLocation_lng(location_lng);
+
+                marker_array.add(markerdto);
+
+
+
+
+
+
+
+
+
+
+            }
+
+
+
+
+
+
+
+
+        } catch (JSONException e) {
+
+        }
+
+
+    }
+
+
+
+    private void setCustomMarkerView() {
+
+    }
+
+
+
+
+    private Bitmap createDrawableFromView(Context context, View view) {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        view.measure(displayMetrics.widthPixels, displayMetrics.heightPixels);
+        view.layout(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels);
+        view.buildDrawingCache();
+        Bitmap bitmap = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        view.draw(canvas);
+        return bitmap;
+    }
+
+
+
+
+
+
+
+
+
+
 
 
 
