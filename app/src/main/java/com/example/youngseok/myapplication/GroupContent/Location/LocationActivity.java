@@ -1,7 +1,6 @@
 package com.example.youngseok.myapplication.GroupContent.Location;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -10,14 +9,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -26,50 +21,36 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
 import android.text.TextUtils;
-import android.text.method.Touch;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.DragEvent;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
-import com.example.youngseok.myapplication.BasicFrame.basic;
 import com.example.youngseok.myapplication.MainActivity;
 import com.example.youngseok.myapplication.MygroupActivity;
 import com.example.youngseok.myapplication.R;
 import com.example.youngseok.myapplication.invite.InviteActivity;
 import com.example.youngseok.myapplication.make_group.MakeGroupActivity;
 import com.example.youngseok.myapplication.setting.SettingActivity;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -82,19 +63,18 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.libraries.places.api.Places;
 
-import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteFragment;
-import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
+import com.google.maps.android.clustering.Cluster;
+import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
 
 import org.json.JSONArray;
@@ -108,7 +88,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -192,6 +171,12 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
     TextView tv_marker;
     View marker_root_view;
 
+    private ClusterManager<markerDTO> mClusterManager;
+
+    private Boolean dododo=false;
+    private Boolean dididi=false;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.e("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm","1");
@@ -209,6 +194,7 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
         Date time = new Date();
         String time2 = format2.format(time);
         toolbar.setSubtitle(time2);
+
 
 
         timeline=findViewById(R.id.timeline_btn);
@@ -728,6 +714,7 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
                 final TextView insert_title =view.findViewById(R.id.insert_title);
                 final TextView insert_content=view.findViewById(R.id.insert_content);
                 Button insert_btn=view.findViewById(R.id.insert_btn);
+                Button modified_btn=view.findViewById(R.id.modified_btn);
 
                 insert_title.setText(marker.getTitle());
                 insert_content.setText(marker.getSnippet());
@@ -738,6 +725,70 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
                         alertdialog.dismiss();
                     }
                 });
+
+
+                modified_btn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        alertdialog.dismiss();
+                        AlertDialog.Builder builder_sub = new AlertDialog.Builder(LocationActivity.this);
+
+
+                        View view = LayoutInflater.from(LocationActivity.this).inflate(R.layout.insert_marker_dialog,null,false);
+
+                        builder_sub.setView(view);
+
+                        final AlertDialog alertdialog_sub = builder_sub.create();
+                        alertdialog_sub.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+
+
+
+
+                        final EditText insert_title =view.findViewById(R.id.insert_title);
+                        final EditText insert_content=view.findViewById(R.id.insert_content);
+                        Button insert_btn=view.findViewById(R.id.insert_btn);
+
+                        insert_title.setText(marker.getTitle());
+                        insert_content.setText(marker.getSnippet());
+                        insert_btn.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Response.Listener<String> responseListener = new Response.Listener<String>(){
+
+                                    @Override
+                                    public void onResponse(String response){
+                                        try{
+
+
+                                            JSONObject jsonResponse = new JSONObject(response);
+                                            boolean success =jsonResponse.getBoolean("success");
+                                            if(success){
+                                            }
+                                            else{
+                                            }
+                                        }
+                                        catch (Exception e){
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                };
+                                //volley 라이브러리 이용해서 실제 서버와 통신
+
+                                marker_modified_request modified = new marker_modified_request(master_key,insert_title.getText().toString(),insert_content.getText().toString(),String.valueOf(marker.getPosition().latitude),String.valueOf(marker.getPosition().longitude),responseListener);
+                                RequestQueue queue = Volley.newRequestQueue(LocationActivity.this);
+                                queue.add(modified);
+
+                                marker.setTitle(insert_title.getText().toString());
+                                marker.setSnippet(insert_content.getText().toString());
+                                alertdialog_sub.dismiss();
+                            }
+                        });
+                        alertdialog_sub.show();
+
+                    }
+                });
+
+
                 alertdialog.show();
 
                 //textsize랑 다 바꿔야댕댕댕댕
@@ -766,6 +817,7 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
     public void onMapReady(GoogleMap googleMap) {
 
         Log.d(TAG, "onMapReady :");
+
 
         Tlqkf=true;
 
@@ -828,7 +880,8 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
 
         }
 
-
+        mClusterManager = new ClusterManager<markerDTO>(LocationActivity.this, mGoogleMap);
+        mGoogleMap.setOnCameraIdleListener(mClusterManager);
 
         mGoogleMap.getUiSettings().setMyLocationButtonEnabled(true);
         mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(15));
@@ -878,6 +931,9 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
                                 GetData_marker task_marker = new GetData_marker();
                                 task_marker.execute("http://192.168.43.34/group_content/geo/show_marker.php",master_key);
                                 Log.e("wjsuranjajrwl","ddd");
+
+
+
 
                             }
                         });Thread.sleep(10000);
@@ -952,6 +1008,19 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
 
 
 
+
+
+
+
+
+        dododo=true;
+
+
+
+
+
+
+
     }
 
 
@@ -992,6 +1061,25 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
 
                 mCurrentLocatiion = location;
                 Log.e("googlemap_skdhkfk","6");
+                Log.e("bdhsmsthfl",String.valueOf(mCurrentLocatiion.getLatitude()));
+
+                if(dododo==true){
+                    if(dididi==true){
+                    }
+                    else{
+
+
+                        dididi=true;
+                        Log.e("bdhsmsthfl","dddssss");
+                    }
+                }
+                else{
+
+                }
+
+
+
+
             }
 
 
@@ -1590,16 +1678,9 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
 
                 Log.e("howhowhow","dddd");
 
-               // LatLng position = new LatLng(markerItem.getLat(), markerItem.getLng());
-               // int price = markerItem.getPrice();
-              //  String formatted = NumberFormat.getCurrencyInstance().format((price));
 
 
-           //     MarkerOptions markerOptions = new MarkerOptions();
-         //       markerOptions.title(Integer.toString(price));
-              //  markerOptions.position(position);
-
-           //     mGoogleMap.addMarker(markerOptions);
+            //    mGoogleMap.addMarker(markerOptions);
 
             }
 
@@ -1750,6 +1831,15 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
 
             }
 
+
+           // mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mCurrentLocatiion.getLatitude(),mCurrentLocatiion.getLongitude()), 10));
+
+
+
+
+            mClusterManager.clearItems();
+
+
             for(int index=0; index<marker_array.size();index++){
                 LatLng currentLatLng = new LatLng(Double.valueOf(marker_array.get(index).getLocation_lat()),Double.valueOf(marker_array.get(index).getLocation_lng()));
                 MarkerOptions markerOptions = new MarkerOptions();
@@ -1759,18 +1849,27 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
                 markerOptions.title(marker_array.get(index).getTitle());
                 markerOptions.snippet(marker_array.get(index).getSnip());
 
+                markerDTO offsetItem = new markerDTO(currentLatLng.latitude, currentLatLng.longitude,marker_array.get(index).getTitle(),marker_array.get(index).getSnip());
+                mClusterManager.addItem(offsetItem);
+                mClusterManager.cluster();
 
 
-                BitmapDrawable bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.map_marker);
-                Bitmap b=bitmapdraw.getBitmap();
-                Bitmap smallMarker = Bitmap.createScaledBitmap(b, 75, 120, false);
 
-                markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+
+
+//                BitmapDrawable bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.map_marker);
+//                Bitmap b=bitmapdraw.getBitmap();
+//                Bitmap smallMarker = Bitmap.createScaledBitmap(b, 75, 120, false);
+//
+//                markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
                 markerOptions.draggable(true);
 
-                mGoogleMap.addMarker(markerOptions);
+     //           mGoogleMap.addMarker(markerOptions);
+
 
             }
+
+
 
         }
 
@@ -1898,9 +1997,7 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
 
 
 
-    private void setCustomMarkerView() {
 
-    }
 
 
 
@@ -1931,3 +2028,9 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
 
 
 }
+
+
+
+
+
+

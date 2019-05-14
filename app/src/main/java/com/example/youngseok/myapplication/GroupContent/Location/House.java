@@ -5,38 +5,35 @@ import com.google.maps.android.clustering.ClusterItem;
 
 public class House implements ClusterItem {
 
-    private LatLng location;
-    private String address;
-    public House(LatLng location,String address){
-        this.location=location;
-        this.address=address;
+    private final LatLng mPosition;
+    private String mTitle;
+    private String mSnippet;
+
+
+
+    public House(double lat, double lng) {
+        mPosition = new LatLng(lat, lng);
     }
 
-    public LatLng getLocation() {
-        return location;
+
+    public House(double lat, double lng, String title, String snippet) {
+        mPosition = new LatLng(lat, lng);
+        mTitle = title;
+        mSnippet = snippet;
     }
 
-    public void setLocation(LatLng location) {
-        this.location = location;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
     @Override
-    public LatLng getPosition(){
-        return location;
+    public LatLng getPosition() {
+        return mPosition;
     }
+
     @Override
-    public String getTitle(){
-        return address;
+    public String getTitle() {
+        return mTitle;
     }
+
     @Override
-    public String getSnippet(){
-        return null;
+    public String getSnippet() {
+        return mSnippet;
     }
 }

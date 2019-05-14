@@ -1,10 +1,37 @@
 package com.example.youngseok.myapplication.GroupContent.Location;
 
-public class markerDTO {
+import com.google.android.gms.maps.model.LatLng;
+import com.google.maps.android.clustering.ClusterItem;
+
+public class markerDTO implements ClusterItem {
     private String title;
     private String snip;
     private String location_lat;
     private String location_lng;
+
+
+
+    private LatLng mPosition;
+
+    public markerDTO(double lat, double lng) {
+        mPosition = new LatLng(lat, lng);
+    }
+    public markerDTO(double lat, double lng,String mtitle,String msnippet) {
+        mPosition = new LatLng(lat, lng);
+        title=mtitle;
+        snip=msnippet;
+    }
+
+    public markerDTO() {
+
+    }
+    public LatLng getmPosition() {
+        return mPosition;
+    }
+
+    public void setmPosition(String location_lat,String location_lng) {
+        this.mPosition = new LatLng(Double.valueOf(location_lat),Double.valueOf(location_lng));
+    }
 
     public void setLocation_lng(String location_lng) {
         this.location_lng = location_lng;
@@ -36,5 +63,16 @@ public class markerDTO {
 
     public String getTitle() {
         return title;
+    }
+    @Override
+    public LatLng getPosition() {
+        return mPosition;
+    }
+
+
+
+    @Override
+    public String getSnippet() {
+        return snip;
     }
 }
