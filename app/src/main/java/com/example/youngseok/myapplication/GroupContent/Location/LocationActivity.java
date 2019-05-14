@@ -26,6 +26,8 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -45,6 +47,7 @@ import android.widget.Toast;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
+
 import com.example.youngseok.myapplication.MainActivity;
 import com.example.youngseok.myapplication.MygroupActivity;
 import com.example.youngseok.myapplication.R;
@@ -176,6 +179,10 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
     private Boolean dododo=false;
     private Boolean dididi=false;
 
+
+    private ArrayList<ListDTO> fab_list_array;
+    private RecyclerView fab_list_recycler;
+    private ListAdapter fab_list_Adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -444,6 +451,72 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
 
         marker_root_view = LayoutInflater.from(this).inflate(R.layout.marker_custom, null);
         tv_marker = (TextView) marker_root_view.findViewById(R.id.tv_marker);
+
+
+
+
+
+
+
+
+
+        fab_show_list.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(LocationActivity.this);
+
+
+                View view = LayoutInflater.from(LocationActivity.this).inflate(R.layout.fab_list,null,false);
+
+                builder.setView(view);
+
+                final AlertDialog alertdialog = builder.create();
+
+
+
+                fab_list_array = new ArrayList<>();
+
+                fab_list_recycler = view.findViewById(R.id.fab_recyclerview);
+
+                fab_list_Adapter = new ListAdapter(LocationActivity.this,fab_list_array);
+
+
+                fab_list_recycler.setAdapter(fab_list_Adapter);
+                fab_list_recycler.setLayoutManager(new LinearLayoutManager(LocationActivity.this));
+                fab_list_Adapter.notifyDataSetChanged();
+
+                alertdialog.show();
+
+                GetData_list task_list = new GetData_list();
+                task_list.execute("http://192.168.43.34/group_content/geo/show_list.php",master_key);
+
+
+                fab_list_Adapter.setItemClick(new ListAdapter.ItemClick() {
+                    @Override
+                    public void onClick(View view, int position) {
+                        Log.e("WKWKWK",String.valueOf(fab_list_array.get(position).getTitle()));
+
+                        Double lat = Double.valueOf(fab_list_array.get(position).getLat());
+                        Double lng = Double.valueOf(fab_list_array.get(position).getLng());
+                        LatLng laln = new LatLng(lat,lng);
+
+                        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(laln, 15);
+                        mGoogleMap.moveCamera(cameraUpdate);
+
+                        alertdialog.dismiss();
+
+                    }
+                });
+
+
+
+
+            }
+        });
+
+
+
 
     }
 
@@ -1997,7 +2070,164 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
 
 
 
+    private class GetData_list extends AsyncTask<String, Void, String> {
+        ProgressDialog progressDialog;
+        String errorString = null;
 
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+//            progressDialog = ProgressDialog.show(LocationActivity.this,
+            //               "Please Wait", null, true, true);
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+
+//            progressDialog.dismiss();
+
+            if(result==null){
+
+            }
+            else{
+                mJsonString=result;
+                showResult_list();
+
+            }
+
+
+
+
+
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            String serverURL = params[0];
+            String postParameters = "master_key=" + params[1];
+
+
+            try {
+
+                URL url = new URL(serverURL);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+
+
+                httpURLConnection.setReadTimeout(5000);
+                httpURLConnection.setConnectTimeout(5000);
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoInput(true);
+                httpURLConnection.connect();
+
+
+                OutputStream outputStream = httpURLConnection.getOutputStream();
+                outputStream.write(postParameters.getBytes("UTF-8"));
+                outputStream.flush();
+                outputStream.close();
+
+
+                int responseStatusCode = httpURLConnection.getResponseCode();
+
+                InputStream inputStream;
+                if(responseStatusCode == HttpURLConnection.HTTP_OK) {
+                    inputStream = httpURLConnection.getInputStream();
+                }
+                else{
+                    inputStream = httpURLConnection.getErrorStream();
+                }
+
+
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+                StringBuilder sb = new StringBuilder();
+                String line;
+
+                while((line = bufferedReader.readLine()) != null){
+                    sb.append(line);
+                }
+
+                bufferedReader.close();
+
+                return sb.toString().trim();
+
+
+            } catch (Exception e) {
+
+                errorString = e.toString();
+
+                return null;
+            }
+
+        }
+
+    }
+    private void showResult_list(){
+
+        String TAG_JSON="youngseok";
+        String TAG_title = "title";
+        String TAG_sub_title="sub_title";
+        String TAG_location_lat ="location_lat";
+        String TAG_location_lng = "location_lng";
+        String TAG_type_code="type_code";
+
+
+        try {
+            JSONObject jsonObject = new JSONObject(mJsonString);
+            JSONArray jsonArray = jsonObject.getJSONArray(TAG_JSON);
+
+            for(int i=0;i<jsonArray.length();i++){
+
+                JSONObject item = jsonArray.getJSONObject(i);
+
+
+                String title = item.getString(TAG_title);
+                String sub_title = item.getString(TAG_sub_title);
+                String location_lat = item.getString(TAG_location_lat);
+                String location_lng = item.getString(TAG_location_lng);
+                String type_code = item.getString(TAG_type_code);
+
+
+
+
+
+
+
+                ListDTO listdto = new ListDTO();
+
+                listdto.setTitle(title);
+                listdto.setSub_title(sub_title);
+                listdto.setLat(location_lat);
+                listdto.setLng(location_lng);
+                listdto.setType_code(type_code);
+
+
+
+                fab_list_array.add(listdto);
+                fab_list_Adapter.notifyDataSetChanged();
+
+
+
+
+
+            }
+
+
+
+
+
+
+
+
+        } catch (JSONException e) {
+
+        }
+
+
+    }
 
 
 
