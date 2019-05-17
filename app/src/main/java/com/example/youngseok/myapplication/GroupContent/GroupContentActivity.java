@@ -7,6 +7,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,15 +16,21 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
+import com.example.youngseok.myapplication.GroupContent.Financial.FinancialActivity;
 import com.example.youngseok.myapplication.GroupContent.Location.LocationActivity;
 import com.example.youngseok.myapplication.GroupContent.Schedule.ScheduleActivity;
 import com.example.youngseok.myapplication.GroupContent.chat.ChattingActivity;
@@ -84,6 +91,11 @@ public class GroupContentActivity extends AppCompatActivity {
     Button schedule_check;
 
     Button location;
+
+    Button financial_btn;
+
+   ArrayList<String> spinnerarray = new ArrayList<>();
+   private String bank_type;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -109,6 +121,8 @@ public class GroupContentActivity extends AppCompatActivity {
         moim_exit=findViewById(R.id.moim_exit);
 
         location=findViewById(R.id.location_btn);
+
+        financial_btn=findViewById(R.id.financial_btn);
 
 
         timeline.setOnClickListener(new View.OnClickListener() {
@@ -287,6 +301,215 @@ public class GroupContentActivity extends AppCompatActivity {
                 go_loca.putExtra("master_key",master_key);
                 startActivity(go_loca);
                 overridePendingTransition(0,0);
+            }
+        });
+
+        spinnerarray.add("기업은행 문자sms통지");
+        spinnerarray.add("기업은행 i-one 알림");
+        spinnerarray.add("수기로 작성");
+
+        financial_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Response.Listener<String> responseListener = new Response.Listener<String>(){
+
+
+
+                    @Override
+                    public void onResponse(String response){
+                        try{
+
+
+                            JSONObject jsonResponse = new JSONObject(response);
+                            boolean success =jsonResponse.getBoolean("success");
+                            if(success){
+                                if(mArraylist_content.get(0).getGroup_id().equals(save_my_id)){
+                                    final AlertDialog.Builder builder = new AlertDialog.Builder(GroupContentActivity.this);
+                                    builder.setMessage("등록된 계좌가 없습니다! 지금 등록하시겠습니까");
+                                    builder.setNegativeButton("아니오",
+                                            new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int which) {
+
+                                                }
+                                            });
+                                    builder.setPositiveButton("예", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(final DialogInterface dialog, int which) {
+
+
+
+
+                                            final AlertDialog.Builder builder_sub = new AlertDialog.Builder(GroupContentActivity.this);
+
+
+                                            View view = LayoutInflater.from(GroupContentActivity.this).inflate(R.layout.create_account_dialog,null,false);
+
+                                            builder_sub.setView(view);
+
+                                            final AlertDialog alertdialog_sub = builder_sub.create();
+
+
+                                            final Spinner account_spinner = view.findViewById(R.id.account_spinner);
+                                            final TextView textView26 = view.findViewById(R.id.textView26);
+                                            final EditText account_edit = view.findViewById(R.id.account_edit);
+                                            final Button account_btn = view.findViewById(R.id.account_btn);
+
+
+
+
+                                            ArrayAdapter<String> adapter = new ArrayAdapter<String>(GroupContentActivity.this,R.layout.support_simple_spinner_dropdown_item,spinnerarray);
+
+                                            account_spinner.setAdapter(adapter);
+
+
+
+                                            account_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                                                @Override
+                                                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+
+                                                    Log.e("peeeeeeeeeeeeeee",String.valueOf(position));
+
+                                                    if(position==2){
+                                                        textView26.setVisibility(View.GONE);
+                                                        account_edit.setVisibility(View.GONE);
+                                                        account_btn.setText("바로만들기");
+                                                        bank_type="2";
+                                                    }
+                                                    else{
+                                                        textView26.setVisibility(View.VISIBLE);
+                                                        account_edit.setVisibility(View.VISIBLE);
+                                                        account_btn.setText("확인");
+                                                        bank_type=String.valueOf(position);
+                                                    }
+
+                                                }
+
+                                                @Override
+                                                public void onNothingSelected(AdapterView<?> parent) {
+
+                                                }
+                                            });
+
+
+
+
+
+                                            account_btn.setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    String bb="";
+                                                    if(bank_type.equals("0")){
+                                                        bb="sms";
+                                                        if(account_edit.getText().toString().equals("")){
+                                                            Toast.makeText(getApplicationContext(), "공백을 채워주세요~", Toast.LENGTH_LONG).show();
+                                                            return;
+                                                        }
+                                                    }
+                                                    else if(bank_type.equals("1")){
+                                                        bb="ione";
+                                                        if(account_edit.getText().toString().equals("")){
+                                                            Toast.makeText(getApplicationContext(), "공백을 채워주세요~", Toast.LENGTH_LONG).show();
+                                                            return;
+                                                        }
+
+                                                    }
+                                                    else if(bank_type.equals("2")){
+                                                        bb="hand";
+                                                        account_edit.setText("");
+                                                    }
+                                                    else{}
+
+
+
+                                                    Response.Listener<String> responseListener = new Response.Listener<String>(){
+
+                                                        @Override
+                                                        public void onResponse(String response){
+                                                            try{
+
+
+                                                                JSONObject jsonResponse = new JSONObject(response);
+                                                                boolean success =jsonResponse.getBoolean("success");
+                                                                if(success){
+
+                                                                }
+                                                                else{
+
+
+
+                                                                }
+                                                            }
+                                                            catch (Exception e){
+                                                                e.printStackTrace();
+                                                            }
+                                                        }
+                                                    };
+                                                    //volley 라이브러리 이용해서 실제 서버와 통신
+                                                    insert_account_Request insert_account_request = new insert_account_Request(master_key,account_edit.getText().toString(),bb,responseListener);
+                                                    RequestQueue queue = Volley.newRequestQueue(GroupContentActivity.this);
+                                                    queue.add(insert_account_request);
+
+
+
+                                                    alertdialog_sub.dismiss();
+
+                                                    Intent go_finan = new Intent(GroupContentActivity.this, FinancialActivity.class);
+                                                    go_finan.putExtra("master_key",master_key);
+                                                    go_finan.putExtra("master_id",mArraylist_content.get(0).getGroup_id());
+                                                    startActivity(go_finan);
+                                                    overridePendingTransition(0,0);
+                                                    finish();
+
+
+
+
+
+                                                }
+                                            });
+                                            alertdialog_sub.show();
+                                        }
+                                    });
+
+                                    builder.show();
+                                    Log.e("peeeeeeee",mArraylist_content.get(0).getGroup_id());
+                                }
+                                else{
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(GroupContentActivity.this);
+                                    AlertDialog dialog = builder.setMessage("아직 모임장이 재정관리를 시작하지 않았습니다!").setPositiveButton("ok",null).create();
+                                    dialog.show();
+                                    Log.e("peeeeeeee",mArraylist_content.get(0).getGroup_id());
+                                }
+
+
+
+
+
+                            }
+                            else{
+                                Intent go_finan = new Intent(GroupContentActivity.this, FinancialActivity.class);
+                                go_finan.putExtra("master_key",master_key);
+                                go_finan.putExtra("master_id",mArraylist_content.get(0).getGroup_id());
+                                startActivity(go_finan);
+                                overridePendingTransition(0,0);
+                                finish();
+                            }
+                        }
+                        catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                };
+                //volley 라이브러리 이용해서 실제 서버와 통신
+                check_account_Request check_account_request = new check_account_Request(master_key,responseListener);
+                RequestQueue queue = Volley.newRequestQueue(GroupContentActivity.this);
+                queue.add(check_account_request);
+
+
+
+
+
             }
         });
 

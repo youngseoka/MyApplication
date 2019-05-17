@@ -52,6 +52,7 @@
         <activity android:name=".BasicFrame.Recycler.RecyclerActivity"></activity>
         <activity android:name=".GroupContent.Schedule.ScheduleActivity"></activity>
         <activity android:name=".GroupContent.Location.LocationActivity"></activity>
+       <activity android:name=".GroupContent.Financial.FinancialActivity"></activity>
 
 
 
@@ -99,7 +100,13 @@
 
 
 
-
+       <service
+           android:name=".GroupContent.Financial.FinancialNotificationListenerService"
+           android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+           <intent-filter>
+               <action android:name="android.service.notification.NotificationListenerService"/>
+           </intent-filter>
+       </service>
 
 
 
