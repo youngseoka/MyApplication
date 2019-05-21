@@ -10,6 +10,7 @@ public class financialDTO {
     private String account_time;
     private String bank_or_hand;
     private String content_edit;
+    private String result;
 
 
     public String getMaster_key() {
@@ -44,6 +45,9 @@ public class financialDTO {
         return content_edit;
     }
 
+    public String getResult() {
+        return result;
+    }
 
     public void setMaster_key(String master_key) {
         this.master_key = master_key;
@@ -75,5 +79,9 @@ public class financialDTO {
 
     public void setContent_edit(String content_edit) {
         this.content_edit = content_edit;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
     }
 }
