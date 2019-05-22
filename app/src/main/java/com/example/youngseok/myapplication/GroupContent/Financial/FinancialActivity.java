@@ -1,17 +1,24 @@
 package com.example.youngseok.myapplication.GroupContent.Financial;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.youngseok.myapplication.R;
 import com.example.youngseok.myapplication.make_group.CustomAdapter;
@@ -47,7 +54,7 @@ public class FinancialActivity extends AppCompatActivity {
     ImageButton myset;
 
     private ArrayList<financialDTO> mArrayList;
-    private CustomAdapter mAdapter;
+    private FinancialAdapter mAdapter;
     private RecyclerView mRecyclerView;
     private int count = 0;
 
@@ -55,6 +62,9 @@ public class FinancialActivity extends AppCompatActivity {
 
     private String master_key;
     private String master_id;
+
+    private TextView result_tv;
+    private Button not_match_btn;
 
 
     @Override
@@ -89,25 +99,23 @@ public class FinancialActivity extends AppCompatActivity {
             Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
             startActivity(intent);
         }
-
-
-
-
-
-
-
-
-
-
-
         mArrayList=new ArrayList<>();
 
+        result_tv = findViewById(R.id.result_tv);
 
 
+        mAdapter = new FinancialAdapter(FinancialActivity.this,mArrayList);
+        mRecyclerView = findViewById(R.id.financial_recycler);
+        mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mAdapter.notifyDataSetChanged();
 
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(),1));
 
+        GetData task = new GetData();
+        task.execute("http://192.168.43.34/group_content/financial/financial_show.php",master_key);
 
-
+        not_match_btn=findViewById(R.id.not_match_btn);
 
 
     }
@@ -155,6 +163,54 @@ public class FinancialActivity extends AppCompatActivity {
                 showResult();
             }
             Log.e("TTTT",String.valueOf(mArrayList.size()));
+
+            String account_result;
+            int account_result_int=0;
+
+            for(int index=0; index<mArrayList.size();index++){
+                if(mArrayList.get(index).getMoney_type().equals("입금")){
+                    account_result_int+=Integer.valueOf(mArrayList.get(index).getMoney());
+                }
+            }
+
+            for(int index=0;index<mArrayList.size();index++){
+                if(mArrayList.get(index).getMoney_type().equals("출금")){
+                    account_result_int-=Integer.valueOf(mArrayList.get(index).getMoney());
+                }
+           }
+
+            account_result = String.valueOf(account_result_int);
+
+            result_tv.setText(account_result+" 원");
+
+
+            Log.e("ddkkddkk",mArrayList.get(mArrayList.size()-1).getResult());
+            if(account_result.equals(mArrayList.get(mArrayList.size()-1).getResult())){
+                not_match_btn.setVisibility(View.GONE);
+            }
+            else {
+
+                not_match_btn.setVisibility(View.VISIBLE);
+                not_match_btn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(FinancialActivity.this);
+                        builder.setTitle("잔액이 일치하지 않습니다.");
+                        builder.setMessage("통장 잔액과 어플 잔액이 일치하지 않습니다."+"\n"+"마지막으로 확인된 통장 잔액은 "+mArrayList.get(mArrayList.size()-1).getResult()+" 원 입니다.");
+                        builder.setPositiveButton("확인",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+
+                                    }
+                                });
+
+                        builder.show();
+                    }
+                });
+            }
+
+
 
 
 
@@ -273,6 +329,7 @@ public class FinancialActivity extends AppCompatActivity {
 
 
                 mArrayList.add(financialdto);
+                mAdapter.notifyDataSetChanged();
             }
             Log.e("TTTT",String.valueOf(mArrayList.size()));
 
@@ -304,8 +361,6 @@ public class FinancialActivity extends AppCompatActivity {
     protected void onResume(){
         super.onResume();
         Log.e("DDDD","dd");
-        GetData task = new GetData();
-        task.execute("http://192.168.43.34/group_content/financial/financial_show.php",master_key);
     }
     @Override
     protected void onStop(){
