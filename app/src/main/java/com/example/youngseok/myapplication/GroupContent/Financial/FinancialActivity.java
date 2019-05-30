@@ -1,38 +1,57 @@
 package com.example.youngseok.myapplication.GroupContent.Financial;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.provider.MediaStore;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.RadioButton;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
+import com.example.youngseok.myapplication.GroupContent.Financial.Financial_dialog.Financial_dialog_DTO;
+import com.example.youngseok.myapplication.GroupContent.Financial.Financial_dialog.Financial_dialog_picture_insert_request;
 import com.example.youngseok.myapplication.R;
-import com.example.youngseok.myapplication.make_group.CustomAdapter;
-import com.example.youngseok.myapplication.make_group.basicGroup;
+import com.example.youngseok.myapplication.make_group.MakeGroupActivity;
+import com.example.youngseok.myapplication.recycler_drag_drop.ItemTouchHelperCallback;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -61,10 +80,24 @@ public class FinancialActivity extends AppCompatActivity {
     private String mJsonString;
 
     private String master_key;
+
     private String master_id;
 
     private TextView result_tv;
-    private Button not_match_btn;
+
+    private FloatingActionButton financial_add_btn;
+
+    private String account_result="";
+    private int account_result_int=0;
+
+    private static final int PROFILE_PICTURE = 3503;
+
+    private String upLoadServerUri=null;
+    private int serverResponseCode=0;
+
+    private String filePath;
+    private String file_name;
+    private String filename=null;
 
 
     @Override
@@ -107,15 +140,156 @@ public class FinancialActivity extends AppCompatActivity {
         mAdapter = new FinancialAdapter(FinancialActivity.this,mArrayList);
         mRecyclerView = findViewById(R.id.financial_recycler);
         mRecyclerView.setAdapter(mAdapter);
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelperCallback(mAdapter));
+
+        itemTouchHelper.attachToRecyclerView(mRecyclerView);
+
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mAdapter.notifyDataSetChanged();
 
         mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(),1));
 
+
         GetData task = new GetData();
         task.execute("http://192.168.43.34/group_content/financial/financial_show.php",master_key);
 
-        not_match_btn=findViewById(R.id.not_match_btn);
+
+
+        financial_add_btn=findViewById(R.id.financial_add_btn);
+
+        financial_add_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                AlertDialog.Builder builder_sub = new AlertDialog.Builder(FinancialActivity.this);
+
+
+                View view = LayoutInflater.from(FinancialActivity.this).inflate(R.layout.financial_dialog,null,false);
+
+                builder_sub.setView(view);
+
+                final AlertDialog alertdialog_sub = builder_sub.create();
+
+                final RadioButton radio_insert=view.findViewById(R.id.radio_insert);
+                final RadioButton radio_out=view.findViewById(R.id.radio_out);
+                final EditText financial_dialog_money=view.findViewById(R.id.financial_dialog_money);
+                final EditText financial_dialog_detail=view.findViewById(R.id.financial_dialog_detail);
+                final Button financial_dialog_btn=view.findViewById(R.id.financial_dialog_btn);
+
+                final DatePicker datepicker=view.findViewById(R.id.datepicker_financial);
+                final TimePicker timepicker=view.findViewById(R.id.timepicker_financial);
+
+                financial_dialog_btn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String radio=null;
+                        if(radio_insert.isChecked()){
+                            Log.e("20192019","ddd");
+                            radio="입금";
+
+                        }
+                        else if(radio_out.isChecked()){
+                            Log.e("20192019","aaa");
+                            radio="출금";
+                        }
+                        else{
+                            Log.e("20192019","bbb");
+                            Toast.makeText(getApplicationContext(),"수입, 지출을 선택해주세요",Toast.LENGTH_LONG).show();
+                            return;
+                        }
+
+                        Response.Listener<String> responseListener = new Response.Listener<String>(){
+
+                            @Override
+                            public void onResponse(String response){
+                                try{
+
+
+                                    JSONObject jsonResponse = new JSONObject(response);
+                                    boolean success =jsonResponse.getBoolean("success");
+                                    if(success){
+                                    }
+                                    else{
+                                    }
+                                }
+                                catch (Exception e){
+                                    e.printStackTrace();
+                                }
+                            }
+                        };
+
+
+
+                        int month = datepicker.getMonth()+1;
+                        Log.e("cimcim",String.valueOf(datepicker.getYear()));
+                        Log.e("cimcim",String.valueOf(month));
+                        Log.e("cimcim",String.valueOf(datepicker.getDayOfMonth()));
+                        Log.e("cimcim",String.valueOf(timepicker.getHour()));
+                        Log.e("cimcim",String.valueOf(timepicker.getMinute()));
+
+                        String month_mix;
+                        if(month<10){
+                            month_mix = "0"+month;
+                        }else{
+                            month_mix=String.valueOf(month);
+                        }
+                        String make_time = month_mix+"/"+datepicker.getDayOfMonth()+" "+timepicker.getHour()+":"+timepicker.getMinute();
+
+                        Log.e("cimcim",make_time);
+
+
+                        //volley 라이브러리 이용해서 실제 서버와 통신
+                        financialRequest financialrequest = new financialRequest("youngseoka_test_room","231******03016",radio,financial_dialog_money.getText().toString(),financial_dialog_detail.getText().toString(),make_time,"수기","no","null",responseListener);
+                        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+                        queue.add(financialrequest);
+                        alertdialog_sub.dismiss();
+
+                        financialDTO ddto = new financialDTO("youngseoka_test_room","231******03016",radio,financial_dialog_money.getText().toString(),financial_dialog_detail.getText().toString(),make_time,"수기","no","null");
+
+                        //mArrayList.add(ddto);
+
+                        mRecyclerView.scrollToPosition(mAdapter.getItemCount()-1);
+
+
+                        if(radio.equals("입금")){
+                            account_result_int = account_result_int+Integer.valueOf(financial_dialog_money.getText().toString());
+                            account_result=String.valueOf(account_result_int);
+                           result_tv.setText(account_result+" 원");
+                        }
+                        else if(radio.equals("출금")){
+                            account_result_int = account_result_int-Integer.valueOf(financial_dialog_money.getText().toString());
+                            account_result=String.valueOf(account_result_int);
+                            result_tv.setText(account_result+" 원");
+                        }
+
+
+
+                        new Handler().postDelayed(new Runnable()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                mArrayList.clear();
+                                GetData task = new GetData();
+                                task.execute("http://192.168.43.34/group_content/financial/financial_show.php",master_key);
+                            }
+                        }, 500);
+
+
+                        mAdapter.notifyDataSetChanged();
+
+                    }
+                });
+                alertdialog_sub.show();
+
+
+
+            }
+        });
+
+
+        upLoadServerUri = "http://192.168.43.34/group_content/financial/UploadToServer_financial.php";
 
 
     }
@@ -157,6 +331,7 @@ public class FinancialActivity extends AppCompatActivity {
 
             if(result==null){
 
+
             }
             else{
                 mJsonString=result;
@@ -164,8 +339,8 @@ public class FinancialActivity extends AppCompatActivity {
             }
             Log.e("TTTT",String.valueOf(mArrayList.size()));
 
-            String account_result;
-            int account_result_int=0;
+
+            account_result_int=0;
 
             for(int index=0; index<mArrayList.size();index++){
                 if(mArrayList.get(index).getMoney_type().equals("입금")){
@@ -185,31 +360,9 @@ public class FinancialActivity extends AppCompatActivity {
 
 
             Log.e("ddkkddkk",mArrayList.get(mArrayList.size()-1).getResult());
-            if(account_result.equals(mArrayList.get(mArrayList.size()-1).getResult())){
-                not_match_btn.setVisibility(View.GONE);
-            }
-            else {
 
-                not_match_btn.setVisibility(View.VISIBLE);
-                not_match_btn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                        AlertDialog.Builder builder = new AlertDialog.Builder(FinancialActivity.this);
-                        builder.setTitle("잔액이 일치하지 않습니다.");
-                        builder.setMessage("통장 잔액과 어플 잔액이 일치하지 않습니다."+"\n"+"마지막으로 확인된 통장 잔액은 "+mArrayList.get(mArrayList.size()-1).getResult()+" 원 입니다.");
-                        builder.setPositiveButton("확인",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-
-                                    }
-                                });
-
-                        builder.show();
-                    }
-                });
-            }
-
+            mRecyclerView.scrollToPosition(mAdapter.getItemCount()-1);
+            mAdapter.notifyDataSetChanged();
 
 
 
@@ -314,7 +467,7 @@ public class FinancialActivity extends AppCompatActivity {
                 String content_edit=item.getString(TAG_content_edit);
                 String result=item.getString(TAG_result);
 
-                financialDTO financialdto =new financialDTO();
+                financialDTO financialdto =new financialDTO(master_key,account,money_type,money,money_explain,account_time,bank_or_hand,content_edit,result);
 
                 financialdto.setMaster_key(master_key);
                 financialdto.setAccount(account);
@@ -330,6 +483,7 @@ public class FinancialActivity extends AppCompatActivity {
 
                 mArrayList.add(financialdto);
                 mAdapter.notifyDataSetChanged();
+
             }
             Log.e("TTTT",String.valueOf(mArrayList.size()));
 
@@ -340,6 +494,189 @@ public class FinancialActivity extends AppCompatActivity {
         }
 
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case PROFILE_PICTURE:
+                if (data != null) {
+                    getPic(data.getData());
+
+
+
+
+
+
+                    Log.e("donmills","dsfdf");
+                } else {
+                    Log.e("donmills","TTTTTTT");
+                    return;
+                }
+                break;
+        }
+    }
+    public void getPic(Uri imgUri) {
+        String imgPath = getRealPathFromURI(imgUri);
+        // SharedPreferences 관리 Class : 해당 내용은 블로그에 있으니 참조
+        MakeGroupActivity.SharedUtil.putString(getApplicationContext(), "imgPath", imgPath);
+        mAdapter.change(imgPath);
+
+        Response.Listener<String> responseListener = new Response.Listener<String>(){
+
+            @Override
+            public void onResponse(String response){
+                try{
+
+
+                    JSONObject jsonResponse = new JSONObject(response);
+                    boolean success =jsonResponse.getBoolean("success");
+                    if(success){
+                    }
+                    else{
+                    }
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        };
+        //volley 라이브러리 이용해서 실제 서버와 통신
+
+        SimpleDateFormat format3 = new SimpleDateFormat("yyyyMMddHHmmss");
+        Date time2 = new Date();
+        String time3 = format3.format(time2);
+
+        Log.e("fjqlddb",mAdapter.getMoney_type());
+        Log.e("fjqlddb",mAdapter.getMoney());
+        Log.e("fjqlddb",mAdapter.getMoney_explain());
+        Log.e("fjqlddb",mAdapter.getAccount_time());
+        Log.e("fjqlddb",filePath);
+        Log.e("fjqlddb",file_name);
+
+        filename=time3+file_name;
+
+        Financial_dialog_picture_insert_request financial_dialog_picture_insert_request = new Financial_dialog_picture_insert_request(master_key,mAdapter.getMoney_type(),mAdapter.getMoney(),mAdapter.getMoney_explain(),mAdapter.getAccount_time(),filename,responseListener);
+        RequestQueue queue = Volley.newRequestQueue(FinancialActivity.this);
+        queue.add(financial_dialog_picture_insert_request);
+
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                uploadFile(filePath,filename);
+            }
+        }).start();
+
+    }
+
+    public String getRealPathFromURI(Uri uri) {
+        int index = 0;
+        int index_1=0;
+        String[] proj = {MediaStore.Images.Media.DATA};
+        String[] getna = {MediaStore.Files.FileColumns.DISPLAY_NAME};
+
+        // 이미지 경로로 해당 이미지에 대한 정보를 가지고 있는 cursor 호출
+        Cursor cursor = getContentResolver().query(uri, proj, null, null, null);
+        Cursor cursor_1 = getContentResolver().query(uri, getna, null, null, null);
+
+        // 데이터가 있으면(가장 처음에 위치한 레코드를 가리킴)
+        if (cursor.moveToFirst()) {
+            // 해당 필드의 인덱스를 반환하고, 존재하지 않을 경우 예외를 발생시킨다.
+            index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        }
+        if (cursor_1.moveToFirst()) {
+            // 해당 필드의 인덱스를 반환하고, 존재하지 않을 경우 예외를 발생시킨다.
+            index_1 = cursor_1.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME);
+        }
+
+        Log.e("donmills",cursor.getString(index));
+
+        filePath = cursor.getString(index);
+        file_name = cursor_1.getString(index_1);
+
+
+        return cursor.getString(index);
+    }
+
+
+    public int uploadFile(String sourceFileUri,String name) {
+
+        String fileName = name;
+        HttpURLConnection conn = null;
+        DataOutputStream dos = null;
+        String lineEnd = "\r\n";
+        String twoHyphens = "--";
+        String boundary = "*****";
+        int bytesRead, bytesAvailable, bufferSize;
+        byte[] buffer;
+        int maxBufferSize = 1 * 5120 * 5120;
+        File sourceFile = new File(sourceFileUri);
+        if (!sourceFile.isFile()) {
+            return 0;
+        }
+        else
+        {
+            try {
+                FileInputStream fileInputStream = new FileInputStream(sourceFile);
+                URL url = new URL(upLoadServerUri);
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setDoInput(true); // Allow Inputs
+                conn.setDoOutput(true); // Allow Outputs
+                conn.setUseCaches(false); // Don't use a Cached Copy
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Connection", "Keep-Alive");
+                conn.setRequestProperty("ENCTYPE", "multipart/form-data");
+                conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
+                conn.setRequestProperty("uploaded_file", fileName);
+                dos = new DataOutputStream(conn.getOutputStream());
+                dos.writeBytes(twoHyphens + boundary + lineEnd);
+                dos.writeBytes("Content-Disposition: form-data; name=\"uploaded_file\";filename=\""
+                        + fileName + "\"" + lineEnd);
+                dos.writeBytes(lineEnd);
+                bytesAvailable = fileInputStream.available();
+                bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                buffer = new byte[bufferSize];
+                bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+                while (bytesRead > 0) {
+                    dos.write(buffer, 0, bufferSize);
+                    bytesAvailable = fileInputStream.available();
+                    bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                    bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+                }
+                dos.writeBytes(lineEnd);
+                dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+                serverResponseCode = conn.getResponseCode();
+                if(serverResponseCode == 200){
+                }
+                fileInputStream.close();
+                dos.flush();
+                dos.close();
+            } catch (MalformedURLException ex) {
+                ex.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
+
+
+
+            return serverResponseCode;
+
+
+
+
+
+        } // End else block
+
+
+
+
+    }
+
+
 
     @Override
     protected void onStart(){

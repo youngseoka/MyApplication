@@ -12,6 +12,17 @@ public class financialDTO {
     private String content_edit;
     private String result;
 
+    public financialDTO(String master_key, String account, String money_type, String money, String money_explain, String account_time, String bank_or_hand, String content_edit, String result) {
+        this.master_key = master_key;
+        this.account = account;
+        this.money_type = money_type;
+        this.money = money;
+        this.money_explain = money_explain;
+        this.account_time = account_time;
+        this.bank_or_hand = bank_or_hand;
+        this.content_edit = content_edit;
+        this.result = result;
+    }
 
     public String getMaster_key() {
         return master_key;
