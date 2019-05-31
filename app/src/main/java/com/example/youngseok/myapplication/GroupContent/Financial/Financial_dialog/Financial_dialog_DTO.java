@@ -1,6 +1,9 @@
 package com.example.youngseok.myapplication.GroupContent.Financial.Financial_dialog;
 
-public class Financial_dialog_DTO {
+import java.io.Serializable;
+
+public class Financial_dialog_DTO  implements Serializable {
+
 
     private String master_key;
     private String money_type;

@@ -140,7 +140,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="재정관리" />
+                android:text="재정관리(완)" />
         </LinearLayout>
 
         <LinearLayout

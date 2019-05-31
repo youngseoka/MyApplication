@@ -53,6 +53,7 @@
         <activity android:name=".GroupContent.Schedule.ScheduleActivity"></activity>
         <activity android:name=".GroupContent.Location.LocationActivity"></activity>
        <activity android:name=".GroupContent.Financial.FinancialActivity"></activity>
+       <activity android:name=".GroupContent.Financial.Financial_dialog.Financial_dialog_image"></activity>
 
 
 

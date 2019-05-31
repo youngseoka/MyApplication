@@ -8,15 +8,24 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.example.youngseok.myapplication.GroupContent.Financial.FinancialAdapter;
 import com.example.youngseok.myapplication.GroupContent.Financial.financialDTO;
+import com.example.youngseok.myapplication.GroupContent.Financial.financial_delete_Request;
 import com.example.youngseok.myapplication.R;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -31,7 +40,8 @@ public class Financial_dialog_Adapter extends RecyclerView.Adapter<Financial_dia
 
 
 
-    public class Financial_dialog_Holder extends RecyclerView.ViewHolder{
+
+    public class Financial_dialog_Holder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener{
 
 
         protected ImageView financial_dialog_recycler_imageview;
@@ -43,7 +53,77 @@ public class Financial_dialog_Adapter extends RecyclerView.Adapter<Financial_dia
             mView=view;
 
             this.financial_dialog_recycler_imageview=view.findViewById(R.id.financial_dialog_recycler_imageview);
+            view.setOnCreateContextMenuListener(this);
         }
+        @Override
+        public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {  // 3. 메뉴 추가U
+
+
+            MenuItem Delete = menu.add(Menu.NONE, 1002, 2, "삭제");
+
+            Delete.setOnMenuItemClickListener(onEditMenu);
+
+        }
+
+
+        private final MenuItem.OnMenuItemClickListener onEditMenu = new MenuItem.OnMenuItemClickListener() {
+
+
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+
+                switch (item.getItemId()){
+                    case 1002:
+
+                        Response.Listener<String> responseListener = new Response.Listener<String>(){
+
+                            @Override
+                            public void onResponse(String response){
+                                try{
+
+
+                                    JSONObject jsonResponse = new JSONObject(response);
+                                    boolean success =jsonResponse.getBoolean("success");
+                                    if(success){
+                                    }
+                                    else{
+                                    }
+                                }
+                                catch (Exception e){
+                                    e.printStackTrace();
+                                }
+                            }
+                        };
+                        //volley 라이브러리 이용해서 실제 서버와 통신
+
+                        String abc = mRecycler.get(getAdapterPosition()).getFinancial_dialog_picture();
+                        String[] aa = abc.split("/");
+                        String acb=aa[aa.length-1];
+                        financial_dialog_image_delete_request financial_dialog_image_delete_request = new financial_dialog_image_delete_request(
+                                mRecycler.get(getAdapterPosition()).getMaster_key()
+                                ,mRecycler.get(getAdapterPosition()).getMoney_type(),mRecycler.get(getAdapterPosition()).getMoney(),
+                                mRecycler.get(getAdapterPosition()).getMoney_explain(),mRecycler.get(getAdapterPosition()).getAccount_time(),
+                                acb,responseListener);
+                        RequestQueue queue = Volley.newRequestQueue(mContext);
+                        queue.add(financial_dialog_image_delete_request);
+
+
+
+
+                        mRecycler.remove(getAdapterPosition());
+                        notifyItemRemoved(getAdapterPosition());
+                        notifyItemRangeChanged(getAdapterPosition(), mRecycler.size());
+                        notifyDataSetChanged();
+
+
+                        break;
+
+                }
+                return true;
+            }
+
+        };
+
     }
     public Financial_dialog_Adapter(Context context,ArrayList<Financial_dialog_DTO> mRecycler){
         this.mContext=context;
@@ -89,7 +169,16 @@ public class Financial_dialog_Adapter extends RecyclerView.Adapter<Financial_dia
                     ((Activity)mContext).startActivityForResult(intent,PROFILE_PICTURE);
 
                 }
-                else{}
+                else{
+                    Intent intent = new Intent(mContext,Financial_dialog_image.class);
+                    intent.putExtra("image_resource",mRecycler.get(position).getFinancial_dialog_picture());
+                    intent.putExtra("image_resource_arr",mRecycler);
+                    intent.putExtra("image_resource_position",position);
+
+                    mContext.startActivity(intent);
+
+
+                }
 
             }
         });

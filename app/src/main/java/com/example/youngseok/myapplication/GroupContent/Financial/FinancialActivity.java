@@ -35,6 +35,7 @@ import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.example.youngseok.myapplication.GroupContent.Financial.Financial_dialog.Financial_dialog_DTO;
 import com.example.youngseok.myapplication.GroupContent.Financial.Financial_dialog.Financial_dialog_picture_insert_request;
+import com.example.youngseok.myapplication.GroupContent.Financial.Financial_dialog.OnItemClick;
 import com.example.youngseok.myapplication.R;
 import com.example.youngseok.myapplication.make_group.MakeGroupActivity;
 import com.example.youngseok.myapplication.recycler_drag_drop.ItemTouchHelperCallback;
@@ -60,7 +61,7 @@ import java.util.Set;
 
 import static com.example.youngseok.myapplication.Initial.InitialActivity.save_my_id;
 
-public class FinancialActivity extends AppCompatActivity {
+public class FinancialActivity extends AppCompatActivity implements OnItemClick {
 
 
 
@@ -100,6 +101,7 @@ public class FinancialActivity extends AppCompatActivity {
     private String filename=null;
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -137,13 +139,11 @@ public class FinancialActivity extends AppCompatActivity {
         result_tv = findViewById(R.id.result_tv);
 
 
-        mAdapter = new FinancialAdapter(FinancialActivity.this,mArrayList);
+        mAdapter = new FinancialAdapter(FinancialActivity.this,mArrayList,this);
         mRecyclerView = findViewById(R.id.financial_recycler);
         mRecyclerView.setAdapter(mAdapter);
 
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelperCallback(mAdapter));
 
-        itemTouchHelper.attachToRecyclerView(mRecyclerView);
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mAdapter.notifyDataSetChanged();
@@ -222,19 +222,47 @@ public class FinancialActivity extends AppCompatActivity {
 
 
                         int month = datepicker.getMonth()+1;
+                        int day=datepicker.getDayOfMonth();
+                        int hour=timepicker.getHour();
+                        int minute=timepicker.getMinute();
                         Log.e("cimcim",String.valueOf(datepicker.getYear()));
                         Log.e("cimcim",String.valueOf(month));
-                        Log.e("cimcim",String.valueOf(datepicker.getDayOfMonth()));
-                        Log.e("cimcim",String.valueOf(timepicker.getHour()));
-                        Log.e("cimcim",String.valueOf(timepicker.getMinute()));
+
 
                         String month_mix;
+                        String day_mix;
+                        String hour_mix;
+                        String minute_mix;
+
                         if(month<10){
                             month_mix = "0"+month;
                         }else{
                             month_mix=String.valueOf(month);
                         }
-                        String make_time = month_mix+"/"+datepicker.getDayOfMonth()+" "+timepicker.getHour()+":"+timepicker.getMinute();
+
+                        if(day<10){
+                            day_mix="0"+day;
+                        }
+                        else{
+                            day_mix=String.valueOf(day);
+                        }
+
+                        if(hour<10){
+                            hour_mix="0"+hour;
+                        }
+                        else{
+                            hour_mix=String.valueOf(hour);
+                        }
+
+                        if(minute<10){
+                            minute_mix="0"+minute;
+                        }
+                        else{
+                            minute_mix=String.valueOf(minute);
+                        }
+
+
+                        String make_time = month_mix+"/"+day_mix+" "+hour_mix+":"+minute_mix;
 
                         Log.e("cimcim",make_time);
 
@@ -292,6 +320,22 @@ public class FinancialActivity extends AppCompatActivity {
         upLoadServerUri = "http://192.168.43.34/group_content/financial/UploadToServer_financial.php";
 
 
+
+
+
+    }
+    @Override
+    public void onClick (String value){
+        new Handler().postDelayed(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                mArrayList.clear();
+                GetData task = new GetData();
+                task.execute("http://192.168.43.34/group_content/financial/financial_show.php",master_key);
+            }
+        }, 500);
     }
 
     private boolean isNotiPermissionAllowed() {
@@ -514,6 +558,9 @@ public class FinancialActivity extends AppCompatActivity {
                     Log.e("donmills","TTTTTTT");
                     return;
                 }
+                break;
+            case 7500:
+                Log.e("7500","dsfsfe");
                 break;
         }
     }
