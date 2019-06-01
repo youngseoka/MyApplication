@@ -61,3 +61,4 @@ public class Financial_dialog_DTO  implements Serializable {
         this.financial_dialog_picture = financial_dialog_picture;
     }
 }
+

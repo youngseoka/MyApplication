@@ -129,11 +129,11 @@
                 android:text="일정 확인(완)" />
 
             <Button
-                android:id="@+id/button5"
+                android:id="@+id/photo_btn"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="사진첩" />
+                android:text="사진첩-(날짜구분선 만들기)" />
 
             <Button
                 android:id="@+id/financial_btn"

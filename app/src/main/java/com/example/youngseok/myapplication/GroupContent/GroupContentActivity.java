@@ -35,6 +35,7 @@ import com.example.youngseok.myapplication.GroupContent.Location.LocationActivit
 import com.example.youngseok.myapplication.GroupContent.Schedule.ScheduleActivity;
 import com.example.youngseok.myapplication.GroupContent.chat.ChattingActivity;
 import com.example.youngseok.myapplication.GroupContent.member_list.Member_listActivity;
+import com.example.youngseok.myapplication.GroupContent.photo.PhotoActivity;
 import com.example.youngseok.myapplication.MainActivity;
 import com.example.youngseok.myapplication.MygroupActivity;
 import com.example.youngseok.myapplication.R;
@@ -93,6 +94,7 @@ public class GroupContentActivity extends AppCompatActivity {
     Button location;
 
     Button financial_btn;
+    Button photo_btn;
 
    ArrayList<String> spinnerarray = new ArrayList<>();
    private String bank_type;
@@ -123,6 +125,7 @@ public class GroupContentActivity extends AppCompatActivity {
         location=findViewById(R.id.location_btn);
 
         financial_btn=findViewById(R.id.financial_btn);
+        photo_btn=findViewById(R.id.photo_btn);
 
 
         timeline.setOnClickListener(new View.OnClickListener() {
@@ -185,6 +188,15 @@ public class GroupContentActivity extends AppCompatActivity {
                 go_chat.putExtra("group_name",group_name);
                 go_chat.putExtra("master_key",master_key);
                 startActivity(go_chat);
+                overridePendingTransition(0,0);
+            }
+        });
+        photo_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent go_photo = new Intent(GroupContentActivity.this, PhotoActivity.class);
+                go_photo.putExtra("master_key",master_key);
+                startActivity(go_photo);
                 overridePendingTransition(0,0);
             }
         });

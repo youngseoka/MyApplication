@@ -350,16 +350,31 @@ public class Financial_dialog_image extends AppCompatActivity implements Gesture
                             public void run() {
 
 
-                                if(image_resource_position<=1){
-                                    Toast.makeText(getApplicationContext(), "첫번째 사진 입니다.", Toast.LENGTH_SHORT).show();
-                                    image_resource_position=1;
+                                if(arraylist.get(0).getFinancial_dialog_picture().equals("basic_click")){
+                                    if(image_resource_position<=1){
+                                        Toast.makeText(getApplicationContext(), "첫번째 사진 입니다.", Toast.LENGTH_SHORT).show();
+                                        image_resource_position=1;
 
-                                    Glide.with(Financial_dialog_image.this).load(arraylist.get(image_resource_position).getFinancial_dialog_picture()).into(show_image);
+                                        Glide.with(Financial_dialog_image.this).load(arraylist.get(image_resource_position).getFinancial_dialog_picture()).into(show_image);
 
+                                    }
+                                    else{
+                                        image_resource_position=image_resource_position-1;
+                                        Glide.with(Financial_dialog_image.this).load(arraylist.get(image_resource_position).getFinancial_dialog_picture()).into(show_image);
+                                    }
                                 }
                                 else{
-                                    image_resource_position=image_resource_position-1;
-                                    Glide.with(Financial_dialog_image.this).load(arraylist.get(image_resource_position).getFinancial_dialog_picture()).into(show_image);
+                                    if(image_resource_position<=0){
+                                        Toast.makeText(getApplicationContext(), "첫번째 사진 입니다.", Toast.LENGTH_SHORT).show();
+                                        image_resource_position=0;
+
+                                        Glide.with(Financial_dialog_image.this).load(arraylist.get(image_resource_position).getFinancial_dialog_picture()).into(show_image);
+
+                                    }
+                                    else{
+                                        image_resource_position=image_resource_position-1;
+                                        Glide.with(Financial_dialog_image.this).load(arraylist.get(image_resource_position).getFinancial_dialog_picture()).into(show_image);
+                                    }
                                 }
 
                             }
