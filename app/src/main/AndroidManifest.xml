@@ -12,6 +12,10 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"></uses-permission>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"></uses-permission>
+    <uses-permission android:name="android.permission.CAMERA"></uses-permission>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"></uses-permission>
+
+
 
 
    <application
@@ -55,7 +59,9 @@
        <activity android:name=".GroupContent.Financial.FinancialActivity"></activity>
        <activity android:name=".GroupContent.Financial.Financial_dialog.Financial_dialog_image"></activity>
        <activity android:name=".GroupContent.photo.PhotoActivity"></activity>
-
+       <activity android:name=".GroupContent.android_ML.ReceiptActivity"></activity>
+       <activity android:name=".GroupContent.Shot.ShotActivity"></activity>
+       <activity android:name=".GroupContent.Shot.Camera_Edit_Activity"></activity>
 
 
 
@@ -113,7 +119,15 @@
 
 
 
-
+       <provider
+           android:name="android.support.v4.content.FileProvider"
+           android:authorities="com.example.youngseok.myapplication"
+           android:exported="false"
+           android:grantUriPermissions="true">
+           <meta-data
+               android:name="android.support.FILE_PROVIDER_PATHS"
+               android:resource="@xml/file_paths"></meta-data>
+       </provider>
 
 
 

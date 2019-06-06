@@ -198,7 +198,6 @@ public class ScheduleActivity extends AppCompatActivity {
         task.execute("http://192.168.43.34/Schedule/schedule_check.php",master_key);
 
 
-
         add_btn= findViewById(R.id.add_btn);
 
 

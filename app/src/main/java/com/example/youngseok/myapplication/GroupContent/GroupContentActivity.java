@@ -33,6 +33,8 @@ import com.android.volley.toolbox.Volley;
 import com.example.youngseok.myapplication.GroupContent.Financial.FinancialActivity;
 import com.example.youngseok.myapplication.GroupContent.Location.LocationActivity;
 import com.example.youngseok.myapplication.GroupContent.Schedule.ScheduleActivity;
+import com.example.youngseok.myapplication.GroupContent.Shot.ShotActivity;
+import com.example.youngseok.myapplication.GroupContent.android_ML.ReceiptActivity;
 import com.example.youngseok.myapplication.GroupContent.chat.ChattingActivity;
 import com.example.youngseok.myapplication.GroupContent.member_list.Member_listActivity;
 import com.example.youngseok.myapplication.GroupContent.photo.PhotoActivity;
@@ -95,6 +97,8 @@ public class GroupContentActivity extends AppCompatActivity {
 
     Button financial_btn;
     Button photo_btn;
+    Button recept_btn;
+    Button shot_btn;
 
    ArrayList<String> spinnerarray = new ArrayList<>();
    private String bank_type;
@@ -126,6 +130,8 @@ public class GroupContentActivity extends AppCompatActivity {
 
         financial_btn=findViewById(R.id.financial_btn);
         photo_btn=findViewById(R.id.photo_btn);
+        recept_btn=findViewById(R.id.add_Recep);
+        shot_btn=findViewById(R.id.go_shot);
 
 
         timeline.setOnClickListener(new View.OnClickListener() {
@@ -288,6 +294,22 @@ public class GroupContentActivity extends AppCompatActivity {
 
 
 
+        recept_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent go_recep = new Intent(GroupContentActivity.this, ReceiptActivity.class);
+                startActivity(go_recep);
+
+            }
+        });
+
+        shot_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent go_shot = new Intent(GroupContentActivity.this, ShotActivity.class);
+                startActivity(go_shot);
+            }
+        });
 
 
         Intent intent = getIntent();

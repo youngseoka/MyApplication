@@ -157,14 +157,14 @@
                 android:text="위치 확인(완)" />
 
             <Button
-                android:id="@+id/button8"
+                android:id="@+id/add_Recep"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:text="영수증 등록" />
 
             <Button
-                android:id="@+id/button9"
+                android:id="@+id/go_shot"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
