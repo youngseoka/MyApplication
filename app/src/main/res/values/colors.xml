@@ -15,4 +15,11 @@
     <color name="filter_label_normal">#8A8889</color>
     <color name="filter_label_selected">#221F20</color>
 
+
+    <color name="eyeWhite">#FFFACD</color>
+    <color name="eyelid">#B0E0E6</color>
+    <color name="iris">#8B4513</color>
+    <color name="eyeOutline">#000000</color>
+    <color name="overlayHint">#7FFF00</color>
+
 </resources>

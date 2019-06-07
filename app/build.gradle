@@ -102,6 +102,8 @@ dependencies {
     // dexter M permissions
     implementation 'com.karumi:dexter:4.1.0'
     implementation 'info.androidhive:imagefilters:1.0.7'
+
+    implementation 'com.google.android.gms:play-services-vision:17.0.2'
 }
 apply plugin: 'com.google.gms.google-services'
 //채팅구현을 위한 이어 베이스

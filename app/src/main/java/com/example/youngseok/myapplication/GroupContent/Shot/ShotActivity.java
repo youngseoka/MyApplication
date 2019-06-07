@@ -18,9 +18,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import com.example.youngseok.myapplication.R;
+import com.google.android.gms.vision.CameraSource;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -35,6 +37,8 @@ public class ShotActivity extends AppCompatActivity implements View.OnClickListe
     private final int PERMISSION_CONSTANT = 1000;
     public static String img_add="";
     public static final int SELECT_GALLERY_IMAGE = 101;
+    private int camerafacing;
+    ImageButton cameraswitch;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,17 +47,22 @@ public class ShotActivity extends AppCompatActivity implements View.OnClickListe
         ImageView ivCapture = findViewById(R.id.ivCapture);
         ImageView ivFilter = findViewById(R.id.ivFilter);
         horizontalScrollView = findViewById(R.id.filterLayout);
+        camerafacing=1;
+        cameraswitch=findViewById(R.id.cameraswitch);
+
 
         checkPermissionAndGive();
         ivCapture.setOnClickListener(this);
         ivFilter.setOnClickListener(this);
+        cameraswitch.setOnClickListener(this);
     }
 
     private void checkPermissionAndGive(){
+
         initialize();
     }
     private void initialize(){
-        mCamera=getCameraInstance();
+        mCamera=getCameraInstance(camerafacing);
         CameraPreview mPreview = new CameraPreview(this,mCamera);
 
         FrameLayout rlCamPreviewFrame = findViewById(R.id.rlCameraPreview);
@@ -61,12 +70,13 @@ public class ShotActivity extends AppCompatActivity implements View.OnClickListe
             rlCamPreviewFrame.addView(mPreview);
         }
     }
-    private Camera getCameraInstance(){
+    private Camera getCameraInstance(int face_switch){
 
         Camera c =null;
 
         try {
-            c = Camera.open();
+            c = Camera.open(face_switch);
+
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -92,6 +102,7 @@ public class ShotActivity extends AppCompatActivity implements View.OnClickListe
                         @Override
 
                         public void onScanCompleted(String path, Uri uri){
+
 
 
                             mCamera.startPreview();
@@ -149,6 +160,23 @@ public class ShotActivity extends AppCompatActivity implements View.OnClickListe
 
             case R.id.ivCapture:
                 mCamera.takePicture(null,null,mPicture);
+                break;
+
+            case R.id.cameraswitch:
+                if(camerafacing==0){
+                    camerafacing=1;
+                    mCamera.stopPreview();
+                    mCamera.release();
+
+                    initialize();
+                }
+                else if(camerafacing==1){
+                    camerafacing=0;
+                    mCamera.stopPreview();
+                    mCamera.release();
+                    initialize();
+                }
+                break;
         }
     }
 
@@ -167,10 +195,24 @@ public class ShotActivity extends AppCompatActivity implements View.OnClickListe
                     parameters.setColorEffect(Camera.Parameters.EFFECT_AQUA);
                     mCamera.setParameters(parameters);
                     break;
-                case R.id.rlBlackboard:
-                    parameters.setColorEffect(Camera.Parameters.EFFECT_BLACKBOARD);
+
+                case R.id.rlMono:
+                    parameters.setColorEffect(Camera.Parameters.EFFECT_MONO);
                     mCamera.setParameters(parameters);
                     break;
+                case R.id.rlNegative:
+                    parameters.setColorEffect(Camera.Parameters.EFFECT_NEGATIVE);
+                    mCamera.setParameters(parameters);
+                    break;
+                case R.id.rlPOSTERIZE:
+                    parameters.setColorEffect(Camera.Parameters.EFFECT_POSTERIZE);
+                    mCamera.setParameters(parameters);
+                    break;
+                case R.id.rlsepia:
+                    parameters.setColorEffect(Camera.Parameters.EFFECT_SEPIA);
+                    mCamera.setParameters(parameters);
+                    break;
+
             }
 
 

@@ -1,6 +1,7 @@
 package com.example.youngseok.myapplication.GroupContent.android_ML;
 
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,9 +14,12 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,42 +48,73 @@ import java.util.concurrent.ExecutionException;
 public class ReceiptActivity extends AppCompatActivity {
 
     ImageView imageView;
-    TextView textView;
+    EditText textView;
     Bitmap bitmap;
     Button button;
     Button button2;
     private String currentPhotoPath;
     private Uri photouri;
+
+    private ProgressDialog progressDialog;
+
+    private int check;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_firebase_vision);
 
+        Intent intent = getIntent();
+        check=intent.getIntExtra("pic",0);
+
         imageView=findViewById(R.id.imageview);
         textView=findViewById(R.id.textView);
+        textView.setMovementMethod(ScrollingMovementMethod.getInstance());
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+
+
+
+
+        if(check==1){
+            pickImage();
+        }else if( check==2){
+            takeImage();
+        }
+
+        progressDialog = new ProgressDialog(ReceiptActivity.this);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+
+        progressDialog.setMessage("문자 인식중입니다. . .");
+
+
+
 
     }
 
-    public void detect(View v){
+    public void detect(){
         if(bitmap==null){
             Toast.makeText(getApplicationContext(),"nullllll",Toast.LENGTH_LONG).show();
         }
         else{
+            Log.e("sinsae","4");
+            progressDialog.show();
             FirebaseVisionCloudDocumentRecognizerOptions options =
                     new FirebaseVisionCloudDocumentRecognizerOptions.Builder()
                             .setLanguageHints(Arrays.asList("ko", "hi"))
                             .build();
+            Log.e("sinsae","5");
             FirebaseVisionImage firebaseVisionImage= FirebaseVisionImage.fromBitmap(bitmap);
+            Log.e("sinsae","6");
             FirebaseVisionDocumentTextRecognizer textDetector = FirebaseVision.getInstance()
                     .getCloudDocumentTextRecognizer(options);
 
-
+            Log.e("sinsae","7");
             textDetector.processImage(firebaseVisionImage)
                     .addOnSuccessListener(new OnSuccessListener<FirebaseVisionDocumentText>() {
                         @Override
                         public void onSuccess(FirebaseVisionDocumentText result) {
                             // Task completed successfully
                             // ...
+                            Log.e("sinsae","1");
                             processImage(result);
                         }
                     })
@@ -107,18 +142,17 @@ public class ReceiptActivity extends AppCompatActivity {
                 textView.setText(text);
                 Log.e("Tlqkf;;",text);
                 test = test+"\n"+text;
-
+                Log.e("sinsae","2");
             }
-            Log.e("sinsae",test);
+            Log.e("sinsae","3");
+            textView.setText(test);
+            progressDialog.dismiss();
         }
     }
 
 
 
-    public void pickImage(View v){
-
-//        Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-//        startActivityForResult(i,1);
+    public void pickImage(){
 
 
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -143,6 +177,11 @@ public class ReceiptActivity extends AppCompatActivity {
             }
         }
 
+    }
+
+    private void takeImage(){
+        Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(i,1);
     }
     private File createImageFile() throws IOException {
         // Create an image file name
@@ -189,9 +228,11 @@ public class ReceiptActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
+            detect();
         }
         else if(requestCode==2 && resultCode==RESULT_OK){
             Log.e("memememe","dddd");
+
 
             bitmap = BitmapFactory.decodeFile(currentPhotoPath);
             Log.e("closer",currentPhotoPath);
@@ -219,6 +260,7 @@ public class ReceiptActivity extends AppCompatActivity {
 
 
 
+            detect();
 
         }
     }

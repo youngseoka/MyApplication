@@ -58,7 +58,7 @@
                 <ImageView
                     android:layout_width="25dp"
                     android:layout_height="25dp"
-                    android:src="@android:drawable/ic_lock_idle_lock"
+                    android:src="@drawable/ic_invert_colors_black_24dp"
                     android:id="@+id/ivEffectAqua"
                     android:layout_centerHorizontal="true"/>
 
@@ -73,10 +73,11 @@
 
             </RelativeLayout>
 
+
             <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/rlBlackboard"
+                android:id="@+id/rlMono"
                 android:padding="10dp"
                 android:onClick="colorEffectFilter"
                 android:clickable="true"
@@ -84,20 +85,93 @@
                 <ImageView
                     android:layout_width="25dp"
                     android:layout_height="25dp"
-                    android:src="@android:drawable/ic_lock_idle_lock"
-                    android:id="@+id/ivEffectBlackboard"
+                    android:src="@drawable/ic_monochrome_photos_black_24dp"
+                    android:id="@+id/ivEffectMono"
                     android:layout_centerHorizontal="true"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="black"
+                    android:text="Mono"
                     android:textSize="14sp"
-                    android:layout_below="@+id/ivEffectBlackboard"
+                    android:layout_below="@+id/ivEffectMono"
                     android:textColor="@android:color/black"/>
-
-
             </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/rlNegative"
+                    android:padding="10dp"
+                    android:onClick="colorEffectFilter"
+                    android:clickable="true"
+                    >
+                    <ImageView
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:src="@drawable/ic_shuffle_black_24dp"
+                        android:id="@+id/ivEffectNegative"
+                        android:layout_centerHorizontal="true"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Negative"
+                        android:textSize="14sp"
+                        android:layout_below="@+id/ivEffectNegative"
+                        android:textColor="@android:color/black"/>
+                </RelativeLayout>
+
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/rlPOSTERIZE"
+                android:padding="10dp"
+                android:onClick="colorEffectFilter"
+                android:clickable="true"
+                >
+                <ImageView
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:src="@drawable/ic_texture_black_24dp"
+                    android:id="@+id/ivEffectPOSTERIZE"
+                    android:layout_centerHorizontal="true"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Posterize"
+                    android:textSize="14sp"
+                    android:layout_below="@+id/ivEffectPOSTERIZE"
+                    android:textColor="@android:color/black"/>
+            </RelativeLayout>
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/rlsepia"
+                android:padding="10dp"
+                android:onClick="colorEffectFilter"
+                android:clickable="true"
+                >
+                <ImageView
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:src="@drawable/ic_wb_incandescent_black_24dp"
+                    android:id="@+id/ivEffectrlsepia"
+                    android:layout_centerHorizontal="true"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="sepia"
+                    android:textSize="14sp"
+                    android:layout_below="@+id/ivEffectrlsepia"
+                    android:textColor="@android:color/black"/>
+            </RelativeLayout>
+
+
+
 
 
         </LinearLayout>

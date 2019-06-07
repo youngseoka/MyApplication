@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
@@ -35,6 +36,7 @@ import com.example.youngseok.myapplication.GroupContent.Location.LocationActivit
 import com.example.youngseok.myapplication.GroupContent.Schedule.ScheduleActivity;
 import com.example.youngseok.myapplication.GroupContent.Shot.ShotActivity;
 import com.example.youngseok.myapplication.GroupContent.android_ML.ReceiptActivity;
+import com.example.youngseok.myapplication.GroupContent.ar.FaceActivity;
 import com.example.youngseok.myapplication.GroupContent.chat.ChattingActivity;
 import com.example.youngseok.myapplication.GroupContent.member_list.Member_listActivity;
 import com.example.youngseok.myapplication.GroupContent.photo.PhotoActivity;
@@ -99,6 +101,7 @@ public class GroupContentActivity extends AppCompatActivity {
     Button photo_btn;
     Button recept_btn;
     Button shot_btn;
+    Button go_ar;
 
    ArrayList<String> spinnerarray = new ArrayList<>();
    private String bank_type;
@@ -132,6 +135,7 @@ public class GroupContentActivity extends AppCompatActivity {
         photo_btn=findViewById(R.id.photo_btn);
         recept_btn=findViewById(R.id.add_Recep);
         shot_btn=findViewById(R.id.go_shot);
+        go_ar=findViewById(R.id.go_ar);
 
 
         timeline.setOnClickListener(new View.OnClickListener() {
@@ -217,6 +221,15 @@ public class GroupContentActivity extends AppCompatActivity {
                 overridePendingTransition(0,0);
             }
         });
+
+        go_ar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent go_ar = new Intent(GroupContentActivity.this, FaceActivity.class);
+                startActivity(go_ar);
+            }
+        });
+
         moim_exit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -297,8 +310,40 @@ public class GroupContentActivity extends AppCompatActivity {
         recept_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent go_recep = new Intent(GroupContentActivity.this, ReceiptActivity.class);
-                startActivity(go_recep);
+
+
+                final AlertDialog.Builder builder = new AlertDialog.Builder(GroupContentActivity.this);
+                builder.setMessage("어떤방식으로 인식할까요?");
+                builder.setNegativeButton("촬영",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                Log.e("sinsae","fdsa");
+
+                                int a=1;
+                                Intent go_recep = new Intent(GroupContentActivity.this, ReceiptActivity.class);
+                                go_recep.putExtra("pic",a);
+                                startActivity(go_recep);
+                            }
+                        });
+                builder.setPositiveButton("갤러리에서 가져오기", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(final DialogInterface dialog, int which) {
+                        Log.e("sinsae","asdf");
+                        int a=2;
+                        Intent go_recep = new Intent(GroupContentActivity.this, ReceiptActivity.class);
+                        go_recep.putExtra("pic",a);
+                        startActivity(go_recep);
+
+                    }
+                });
+
+                builder.show();
+
+
+
+
+
+
 
             }
         });

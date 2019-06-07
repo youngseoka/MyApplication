@@ -95,10 +95,11 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/button7"
+                android:id="@+id/go_ar"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:text="AR" />
 
             <Button
                 android:id="@+id/member_list"
@@ -161,7 +162,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="영수증 등록" />
+                android:text="문자 인식" />
 
             <Button
                 android:id="@+id/go_shot"

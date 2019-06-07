@@ -10,18 +10,16 @@
     tools:showIn="@layout/activity_camera_edit">
 
 
-
-
     <ImageView
         android:id="@+id/image_preview"
         android:layout_width="match_parent"
-        android:layout_height="360dp"
+        android:layout_height="420dp"
         android:scaleType="centerCrop" />
 
     <com.example.youngseok.myapplication.GroupContent.Shot.Editor.NonSwipeableViewPager
         android:id="@+id/viewpager"
         android:layout_width="match_parent"
-        android:layout_height="120dp"
+        android:layout_height="60dp"
         android:layout_above="@+id/tabs"
         android:layout_below="@+id/image_preview"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
