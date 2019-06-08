@@ -37,6 +37,7 @@ import com.example.youngseok.myapplication.GroupContent.Schedule.ScheduleActivit
 import com.example.youngseok.myapplication.GroupContent.Shot.ShotActivity;
 import com.example.youngseok.myapplication.GroupContent.android_ML.ReceiptActivity;
 import com.example.youngseok.myapplication.GroupContent.ar.FaceActivity;
+import com.example.youngseok.myapplication.GroupContent.ar.ar_sub.ZooActivity;
 import com.example.youngseok.myapplication.GroupContent.chat.ChattingActivity;
 import com.example.youngseok.myapplication.GroupContent.member_list.Member_listActivity;
 import com.example.youngseok.myapplication.GroupContent.photo.PhotoActivity;
@@ -225,8 +226,31 @@ public class GroupContentActivity extends AppCompatActivity {
         go_ar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent go_ar = new Intent(GroupContentActivity.this, FaceActivity.class);
-                startActivity(go_ar);
+
+                final AlertDialog.Builder builder = new AlertDialog.Builder(GroupContentActivity.this);
+                builder.setMessage("어디로갈까용");
+                builder.setNegativeButton("ar가면",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                Log.e("sinsae","fdsa");
+                                Intent go_ar = new Intent(GroupContentActivity.this, FaceActivity.class);
+                                startActivity(go_ar);
+                            }
+                        });
+                builder.setPositiveButton("ar동물원", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(final DialogInterface dialog, int which) {
+                        Log.e("sinsae","asdf");
+
+                        Intent go_ar = new Intent(GroupContentActivity.this, ZooActivity.class);
+
+                        startActivity(go_ar);
+
+                    }
+                });
+
+                builder.show();
+
             }
         });
 
