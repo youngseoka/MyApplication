@@ -38,11 +38,14 @@ import com.google.firebase.ml.vision.text.FirebaseVisionText;
 import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 public class ReceiptActivity extends AppCompatActivity {
@@ -56,6 +59,9 @@ public class ReceiptActivity extends AppCompatActivity {
     private Uri photouri;
 
     private ProgressDialog progressDialog;
+    private ArrayList mllist;
+
+    private String filename;
 
     private int check;
     @Override
@@ -71,6 +77,7 @@ public class ReceiptActivity extends AppCompatActivity {
         textView.setMovementMethod(ScrollingMovementMethod.getInstance());
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
+        mllist=new ArrayList();
 
 
 
@@ -140,13 +147,28 @@ public class ReceiptActivity extends AppCompatActivity {
             for(FirebaseVisionDocumentText.Block block : firebaseVisionText.getBlocks()){
                 String text = block.getText();
                 textView.setText(text);
+
+                Log.e("watchout",text);
                 Log.e("Tlqkf;;",text);
                 test = test+"\n"+text;
                 Log.e("sinsae","2");
             }
             Log.e("sinsae","3");
             textView.setText(test);
+
+            String[] bb = test.split("\\n");
+            for(int i=0; i<bb.length;i++){
+                String[] aa= bb[i].split("\\s");
+                for(int j=0; j<aa.length;j++){
+                    mllist.add(aa[j]);
+                }
+            }
             progressDialog.dismiss();
+            Intent intent =new Intent(ReceiptActivity.this,Receip_insert_Activity.class);
+            intent.putStringArrayListExtra("array",mllist);
+            intent.putExtra("file",filename);
+            startActivity(intent);
+            finish();
         }
     }
 
@@ -216,6 +238,29 @@ public class ReceiptActivity extends AppCompatActivity {
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
     }
 
+    private void saveImage (Bitmap bitmap){
+        String root = Environment.getExternalStorageDirectory().toString();
+        File myDir = new File(root + "/saved_images");
+        myDir.mkdirs();
+        Random generator = new Random();
+        int n = 10000;
+        n = generator.nextInt(n);
+        String fname = "Image-"+ n +".jpg";
+        filename=myDir+"/"+fname;
+        Log.e("rmfldnj",fname);
+        File file = new File (myDir, fname);
+        if (file.exists ()) file.delete ();
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            out.flush();
+            out.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode,resultCode,data);
@@ -227,6 +272,8 @@ public class ReceiptActivity extends AppCompatActivity {
             }catch (IOException e){
                 e.printStackTrace();
             }
+
+            saveImage(bitmap);
 
             detect();
         }
@@ -259,6 +306,7 @@ public class ReceiptActivity extends AppCompatActivity {
             bitmap = rotate(bitmap,exifDegree);
 
 
+            saveImage(bitmap);
 
             detect();
 

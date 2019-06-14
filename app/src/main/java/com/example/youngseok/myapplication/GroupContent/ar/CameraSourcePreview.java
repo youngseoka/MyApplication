@@ -2,6 +2,8 @@ package com.example.youngseok.myapplication.GroupContent.ar;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -23,7 +25,11 @@ public class CameraSourcePreview extends ViewGroup {
     private boolean mSurfaceAvailable;
     private CameraSource mCameraSource;
 
+
     private GraphicOverlay mOverlay;
+
+    private CameraSource.PictureCallback pictureCallback;
+    private Bitmap result;
 
     public CameraSourcePreview(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -34,6 +40,29 @@ public class CameraSourcePreview extends ViewGroup {
         mSurfaceView = new SurfaceView(context);
         mSurfaceView.getHolder().addCallback(new SurfaceCallback());
         addView(mSurfaceView);
+        pictureCallback = new CameraSource.PictureCallback() {
+            @Override
+            public void onPictureTaken(byte[] bytes) {
+                Log.e("사진 바이트어레이", bytes.toString());
+                result = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+            }
+        };
+    }
+    public Bitmap capture(){
+
+        this.buildDrawingCache();
+        this.setDrawingCacheEnabled(true);
+
+        result = this.getDrawingCache();
+
+//
+//        mCameraSource.stop();
+
+//        Bitmap result1 = mSurfaceView.capture();
+
+//        this.draw(canvas);
+
+        return result;
     }
 
     public void start(CameraSource cameraSource) throws IOException {

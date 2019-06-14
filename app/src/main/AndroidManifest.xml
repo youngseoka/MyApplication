@@ -69,6 +69,7 @@
        <activity android:name=".GroupContent.ar.FaceActivity"></activity>
        <activity android:name=".GroupContent.ar.ar_sub.ZooActivity"></activity>
        <meta-data android:name="com.google.ar.core" android:value="required"></meta-data>
+       <activity android:name=".GroupContent.android_ML.Receip_insert_Activity"></activity>
 
 
 

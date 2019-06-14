@@ -4,12 +4,23 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
+import android.graphics.Rect;
+import android.hardware.Camera;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -17,8 +28,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.Toast;
 
+import com.example.youngseok.myapplication.GroupContent.Shot.Camera_Edit_Activity;
 import com.example.youngseok.myapplication.R;
+import com.example.youngseok.myapplication.setting.SettingActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.vision.CameraSource;
@@ -29,9 +44,19 @@ import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.face.FaceDetector;
 import com.example.youngseok.myapplication.GroupContent.ar.CameraSourcePreview;
 import com.example.youngseok.myapplication.GroupContent.ar.GraphicOverlay;
+import com.example.youngseok.myapplication.GroupContent.ar.CameraSourcePreview;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.security.SecureRandom;
+import java.sql.Timestamp;
+import java.util.Random;
 
+import static com.example.youngseok.myapplication.GroupContent.Shot.ShotActivity.img_add;
 
 public final class FaceActivity extends AppCompatActivity {
 
@@ -46,6 +71,15 @@ public final class FaceActivity extends AppCompatActivity {
     private GraphicOverlay mGraphicOverlay;
     private boolean mIsFrontFacing = true;
 
+    private ImageButton capture_btn;
+
+    private Camera mCamera;
+
+    private CameraSource.PictureCallback pictureCallback;
+
+    private Bitmap result;
+    private ImageView imageview_result;
+
 
     // Activity event handlers
     // =======================
@@ -57,6 +91,7 @@ public final class FaceActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_face);
 
+        imageview_result=findViewById(R.id.imageview_result);
         mPreview = (CameraSourcePreview) findViewById(R.id.preview);
         mGraphicOverlay = (GraphicOverlay) findViewById(R.id.faceOverlay);
         final ImageButton button = (ImageButton) findViewById(R.id.flipButton);
@@ -74,6 +109,101 @@ public final class FaceActivity extends AppCompatActivity {
         } else {
             requestCameraPermission();
         }
+        capture_btn=findViewById(R.id.capture_btn);
+        capture_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                Intent intent =new Intent(FaceActivity.this, SettingActivity.class);
+//                startActivity(intent);
+//                finish();
+
+
+
+                mCameraSource.takePicture(new CameraSource.ShutterCallback() {
+                    @Override
+                    public void onShutter() {
+
+                    }
+                }, new CameraSource.PictureCallback() {
+                    @Override
+                    public void onPictureTaken(byte[] bytes) {
+
+
+                        // byte 배열을 비트맵으로 변환
+                        result = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+                        // 사진의 회전값을 맞추기 위해 Matrix 변수 선언
+                        Matrix rotateMatrix = new Matrix();
+                        rotateMatrix.postRotate(-90);
+
+                        // 사진의 좌우반전을 맞추기 위해 Matrix 변수 선언
+                        Matrix sideInversionMatrix = new Matrix();
+                        sideInversionMatrix.setScale(-1,1);
+
+                        // 사진의 회전값과 좌우반전을 적용하여 새로운 비트맵 생성
+                        result = Bitmap.createBitmap(result, 0,0, result.getWidth(), result.getHeight(), rotateMatrix, false);
+                        result = Bitmap.createBitmap(result, 0,0, result.getWidth(), result.getHeight(), sideInversionMatrix, false);
+
+                        // 사진을 미리볼 수 있는 imageView 에 결과 비트맵을 삽입
+                        imageview_result.setImageBitmap(result);
+
+                        // CameraSourcePreView 의 캡쳐를 통해 현재 화면에 나타난 마스크를 비트맵으로 변환
+                        Bitmap mask = Bitmap.createScaledBitmap(mPreview.capture(), result.getWidth(), result.getHeight(), false);
+
+                        // CameraSource 에서 가져온 사진의 bitmap 위에 마스크를 그려낸다.
+                        Canvas canvas = new Canvas(result);
+                        Rect rect = new Rect(-900,0,mask.getWidth(), mask.getHeight());
+                        canvas.drawBitmap(mask,null,rect, null);
+
+                        // 카메라 화면을 숨기고, 결과 이미지뷰의 Visibility 를 Visible 로 처리한다.
+//                        mPreview.setVisibility(View.GONE);
+//                        imageview_result.setVisibility(View.VISIBLE);
+
+                        SaveImage(result);
+
+
+                        String root = Environment.getExternalStorageDirectory().toString();
+                        File myDir = new File(root + "/saved_images");
+                        myDir.mkdirs();
+                        Random generator = new Random();
+                        int n = 10000;
+                        n = generator.nextInt(n);
+                        String fname = "Image-"+ n +".jpg";
+                        Log.e("rmfldnj",fname);
+                        File file = new File (myDir, fname);
+                        if (file.exists ()) file.delete ();
+                        try {
+                            FileOutputStream out = new FileOutputStream(file);
+                            result.compress(Bitmap.CompressFormat.JPEG, 90, out);
+                            out.flush();
+                            out.close();
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        Log.e("rmfldnj",fname);
+                        Intent intent = new Intent(FaceActivity.this,Camera_Edit_Activity.class);
+                        intent.putExtra("file_path",myDir+"/"+fname);
+                        img_add=myDir+"/"+fname;
+
+                        startActivityForResult(intent,101);
+
+
+
+                    }
+                });
+
+
+
+
+
+
+
+
+
+            }
+        });
     }
 
     private View.OnClickListener mSwitchCameraButtonListener = new View.OnClickListener() {
@@ -279,5 +409,78 @@ public final class FaceActivity extends AppCompatActivity {
         }
         return detector;
     }
+
+
+
+    private Camera.PictureCallback mPicture = new Camera.PictureCallback() {
+        @Override
+        public void onPictureTaken(byte[] data, Camera camera) {
+            //    camera.setDisplayOrientation(90);
+
+
+
+
+            File pictureFile = getOutputMediaFile();
+
+            if(pictureFile==null){
+                return;
+            }
+            MediaScannerConnection.scanFile(FaceActivity.this,
+                    new String[]{pictureFile.toString()},null,
+                    new MediaScannerConnection.OnScanCompletedListener() {
+                        @Override
+
+                        public void onScanCompleted(String path, Uri uri){
+
+
+
+                            mCamera.startPreview();
+                            Intent intent = new Intent(FaceActivity.this, Camera_Edit_Activity.class);
+                            intent.putExtra("file_path",path);
+                            img_add=path;
+                            startActivityForResult(intent,101);
+
+
+                        }
+                    });
+
+            try {
+                FileOutputStream fos = new FileOutputStream(pictureFile);
+                fos.write(data);
+                fos.close();
+            }catch (FileNotFoundException e){
+                e.printStackTrace();
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+
+
+
+
+        }
+    };
+
+    private File getOutputMediaFile(){
+        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),"My images");
+
+        if(!mediaStorageDir.exists()){
+            if(!mediaStorageDir.mkdirs()){
+                return null;
+            }
+        }
+        SecureRandom random = new SecureRandom();
+        int num = random.nextInt(100000);
+        File save = new File(mediaStorageDir.getAbsolutePath()+File.separator+"IMG"+num+".jpg");
+
+        return save;
+    }
+
+    private void SaveImage(Bitmap finalBitmap) {
+
+
+    }
+
+
+
 
 }

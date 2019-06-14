@@ -16,7 +16,6 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,13 +31,10 @@ import android.widget.Toast;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
-import com.bumptech.glide.Glide;
-import com.example.youngseok.myapplication.GroupContent.Financial.Financial_dialog.Financial_dialog_DTO;
 import com.example.youngseok.myapplication.GroupContent.Financial.Financial_dialog.Financial_dialog_picture_insert_request;
 import com.example.youngseok.myapplication.GroupContent.Financial.Financial_dialog.OnItemClick;
 import com.example.youngseok.myapplication.R;
 import com.example.youngseok.myapplication.make_group.MakeGroupActivity;
-import com.example.youngseok.myapplication.recycler_drag_drop.ItemTouchHelperCallback;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -612,6 +608,7 @@ public class FinancialActivity extends AppCompatActivity implements OnItemClick 
         new Thread(new Runnable() {
             @Override
             public void run() {
+                Log.e("yaeyae",filePath+"TTTT"+filename);
                 uploadFile(filePath,filename);
             }
         }).start();

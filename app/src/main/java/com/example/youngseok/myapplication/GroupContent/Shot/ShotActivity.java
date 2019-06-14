@@ -109,7 +109,10 @@ public class ShotActivity extends AppCompatActivity implements View.OnClickListe
                             Intent intent = new Intent(ShotActivity.this,Camera_Edit_Activity.class);
                             intent.putExtra("file_path",path);
                             img_add=path;
+
                             startActivityForResult(intent,SELECT_GALLERY_IMAGE);
+                            Log.e("asdf1",img_add);
+                            Log.e("asdf2",path);
 
 
                         }

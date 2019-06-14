@@ -33,6 +33,7 @@ import com.example.youngseok.myapplication.GroupContent.Shot.Editor.BitmapUtils;
 import com.example.youngseok.myapplication.GroupContent.Shot.Editor.EditImageFragment;
 import com.example.youngseok.myapplication.GroupContent.Shot.Editor.FiltersListFragment;
 import com.example.youngseok.myapplication.R;
+import com.example.youngseok.myapplication.setting.SettingActivity;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -106,7 +107,7 @@ public class Camera_Edit_Activity extends AppCompatActivity  implements FiltersL
 
         Intent intent = getIntent();
         image_path=intent.getStringExtra("file_path");
-        Log.e("lonely",image_path);
+//        Log.e("lonely",image_path);
 
 
         Log.e("mamamooo","되냐?");
@@ -117,6 +118,7 @@ public class Camera_Edit_Activity extends AppCompatActivity  implements FiltersL
         getSupportActionBar().setTitle(getString(R.string.activity_title_main));
         Log.e("mamamooo","되냐?2");
         loadImage();
+
         Log.e("mamamooo","되냐?3");
         setupViewPager(viewPager);
         tabLayout.setupWithViewPager(viewPager);
@@ -409,11 +411,6 @@ public class Camera_Edit_Activity extends AppCompatActivity  implements FiltersL
             }
 
 
-
-
-
-
-
             originalImage = bitmap.copy(Bitmap.Config.ARGB_8888, true);
             filteredImage = originalImage.copy(Bitmap.Config.ARGB_8888, true);
             finalImage = originalImage.copy(Bitmap.Config.ARGB_8888, true);
@@ -475,9 +472,15 @@ public class Camera_Edit_Activity extends AppCompatActivity  implements FiltersL
 
                                 snackbar.show();
                             }
+                            Log.e("despacito",path);
+                            Intent go_setting = new Intent(getApplicationContext(), SettingActivity.class);
+                            go_setting.putExtra("uri",path);
+                            startActivity(go_setting);
+                            finish();
                         } else {
                             Toast.makeText(getApplicationContext(), "Permissions are not granted!", Toast.LENGTH_SHORT).show();
                         }
+
                     }
 
                     @Override
@@ -485,6 +488,8 @@ public class Camera_Edit_Activity extends AppCompatActivity  implements FiltersL
                         token.continuePermissionRequest();
                     }
                 }).check();
+
+
 
     }
 
